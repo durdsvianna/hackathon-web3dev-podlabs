@@ -39,6 +39,16 @@ const UserSettings = Loader(
   lazy(() => import('src/content/applications/Users/settings'))
 );
 
+const Activities = Loader(
+  lazy(() => import('src/content/applications/Activities/activities'))
+);
+const Activity = Loader(
+  lazy(() => import('src/content/applications/Activities/activity'))
+);
+const ActivitySettings = Loader(
+  lazy(() => import('src/content/applications/Activities/settings'))
+);
+
 // Components
 
 const Buttons = Loader(
@@ -92,8 +102,24 @@ const routes: RouteObject[] = [
         element: <Navigate to="/" replace />
       },
       {
-        path: '/content/overview',
-        element: <Overview />
+        path: '/dapp/activities',
+        element: <Activities />
+      },
+      {
+        path: '/dapp/activity',
+        element: <Activity />
+      },
+      {
+        path: '/dapp/activity-settings',
+        element: <ActivitySettings />
+      },
+      {
+        path: '/dapp/profile',
+        element: <UserProfile />
+      },
+      {
+        path: '/content/tabs',
+        element: <Tabs />
       },
       {
         path: 'status',

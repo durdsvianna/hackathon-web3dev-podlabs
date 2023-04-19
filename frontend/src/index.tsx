@@ -30,29 +30,7 @@ const client = createClient({
       ? `${chain.rpcUrls.alchemy}/${alchemyId}`
       : chain.rpcUrls.default
     return [
-      new MetaMaskConnector({ chains }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: {
-          appName: 'wagmi',
-          chainId: chain.id,
-          jsonRpcUrl: rpcUrl,
-        },
-      }),
-      new WalletConnectConnector({
-        chains,
-        options: {
-          qrcode: true,
-          rpc: { [chain.id]: rpcUrl },
-        },
-      }),
-      new InjectedConnector({
-        chains,
-        options: {
-          name: 'Injected',
-          shimDisconnect: true,
-        },
-      }),
+      new MetaMaskConnector({ chains })
     ]
   },
   provider({ chainId }) {

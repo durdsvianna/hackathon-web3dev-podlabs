@@ -89,22 +89,11 @@ function HeaderMenu({data}) {
             classes={{ root: 'MuiListItem-indicators' }}
             button
             component={NavLink}
-            to="/content/overview"
+            to="/dapp"
           >
             <ListItemText
               primaryTypographyProps={{ noWrap: true }}
               primary="Home"
-            />
-          </ListItem>
-          <ListItem
-            classes={{ root: 'MuiListItem-indicators' }}
-            button
-            component={NavLink}
-            to="/components/forms"
-          >
-            <ListItemText
-              primaryTypographyProps={{ noWrap: true }}
-              primary="Forms"
             />
           </ListItem>
           {
@@ -119,7 +108,7 @@ function HeaderMenu({data}) {
               primaryTypographyProps={{ noWrap: true }}
               primary={
                 <Box display="flex" alignItems="center">
-                  Others
+                  Manage
                   <Box display="flex" alignItems="center" pl={0.3}>
                     <ExpandMoreTwoToneIcon fontSize="small" />
                   </Box>
@@ -131,17 +120,14 @@ function HeaderMenu({data}) {
         </List>
       </ListWrapper>
       <Menu anchorEl={ref.current} onClose={handleClose} open={isOpen}>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/content/overview">
-          Overview
+        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activities">
+          Activities
         </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/components/tabs">
-          Tabs
+        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activity">
+          Activity
         </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/components/cards">
-          Cards
-        </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/components/modals">
-          Modals
+        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activity-settings">
+          Activity Settings
         </MenuItem>
       </Menu>
     </>

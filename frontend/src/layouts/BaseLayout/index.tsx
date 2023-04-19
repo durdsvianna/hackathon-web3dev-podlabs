@@ -1,7 +1,19 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, Suspense, lazy } from 'react';
 import { Box, alpha, lighten, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
+import SuspenseLoader from 'src/components/SuspenseLoader';
+
+const Loader = (Component) => (props) =>
+  (
+    <Suspense fallback={<SuspenseLoader />}>
+      <Component {...props} />
+    </Suspense>
+  );
+
+// Pages
+
+const Overview = Loader(lazy(() => import('src/content/overview')));
 
 import { useAccount } from 'wagmi'
 
@@ -43,7 +55,7 @@ const BaseLayout: FC<BaseLayoutProps> = () => {
         }}
       >
         <Header data={data} />
-        { data && ( 
+        { data ? ( 
           <Box
             sx={{
             position: 'relative',
@@ -56,7 +68,21 @@ const BaseLayout: FC<BaseLayoutProps> = () => {
               <Outlet />
             </Box>
           </Box>
-        )}
+        ) : (
+          <Box
+          sx={{
+          position: 'relative',
+          zIndex: 5,
+          display: 'block',
+          flex: 1
+          }}
+        >
+          <Box display="block">
+            <Overview />
+          </Box>
+        </Box>
+        )        
+        }
       </Box>      
     </>
   );
