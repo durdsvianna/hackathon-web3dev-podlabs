@@ -24,7 +24,6 @@ import { BigNumber, ethers } from 'ethers';
 import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 'wagmi';
 import TokenArtifact from "src/contracts/Token.json";
 import contractAddress from "src/contracts/contract-address.json";
-import Addresses from 'src/content/applications/Users/profile/Addresses';
 
 
 const AvatarSuccess = styled(Avatar)(
