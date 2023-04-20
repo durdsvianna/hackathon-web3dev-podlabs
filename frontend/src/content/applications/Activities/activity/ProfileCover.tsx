@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
+import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
@@ -65,18 +66,11 @@ const CardCover = styled(Card)(
     position: relative;
 
     .MuiCardMedia-root {
-      height: ${theme.spacing(26)};
+      height: ${theme.spacing(48)};      
     }
 `
 );
 
-const CardCoverAction = styled(Box)(
-  ({ theme }) => `
-    position: absolute;
-    right: ${theme.spacing(2)};
-    bottom: ${theme.spacing(2)};
-`
-);
 
 const ProfileCover = ({ user }) => {
   return (
@@ -96,20 +90,8 @@ const ProfileCover = ({ user }) => {
           </Typography>
         </Box>
       </Box>
-      <CardCover>
+      <CardCover sx={{ mx: 24 }}>
         <CardMedia image={user.coverImg} />
-        <CardCoverAction>
-          <Input accept="image/*" id="change-cover" multiple type="file" />
-          <label htmlFor="change-cover">
-            <Button
-              startIcon={<UploadTwoToneIcon />}
-              variant="contained"
-              component="span"
-            >
-              Change cover
-            </Button>
-          </label>
-        </CardCoverAction>
       </CardCover>      
       <Box py={2} pl={2} mb={3}>
         <Typography gutterBottom variant="h4">
@@ -128,7 +110,14 @@ const ProfileCover = ({ user }) => {
             <Button size="small" variant="contained">
               Follow
             </Button>
-            <Button size="small" sx={{ mx: 1 }} variant="outlined">
+            <Button sx={{ mx: 1 }}
+              startIcon={<CommentTwoToneIcon />}
+              variant="outlined"
+              size="small" 
+            >
+              Comment
+            </Button>
+            <Button size="small" sx={{ m: 1 }} variant="outlined">
               View website
             </Button>
             <IconButton color="primary" sx={{ p: 0.5 }}>

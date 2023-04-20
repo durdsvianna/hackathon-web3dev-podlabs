@@ -7,9 +7,7 @@ import Footer from 'src/components/Footer';
 import { styled } from '@mui/material/styles';
 
 import ActivityTab from './ActivityTab';
-import EditProfileTab from './EditProfileTab';
-import NotificationsTab from './NotificationsTab';
-import SecurityTab from './SecurityTab';
+import MintInfoTab from './MintInfoTab';
 
 const TabsWrapper = styled(Tabs)(
   () => `
@@ -23,10 +21,8 @@ function ManagementActivitySettings() {
   const [currentTab, setCurrentTab] = useState<string>('activity');
 
   const tabs = [
-    { value: 'activity', label: 'Activity' },
-    { value: 'edit_profile', label: 'Edit Profile' },
-    { value: 'notifications', label: 'Notifications' },
-    { value: 'security', label: 'Passwords/Security' }
+    { value: 'activity', label: 'Activity Info' },
+    { value: 'mint-info', label: 'Mint Info' }
   ];
 
   const handleTabsChange = (event: ChangeEvent<{}>, value: string): void => {
@@ -65,9 +61,7 @@ function ManagementActivitySettings() {
           </Grid>
           <Grid item xs={12}>
             {currentTab === 'activity' && <ActivityTab />}
-            {currentTab === 'edit_profile' && <EditProfileTab />}
-            {currentTab === 'notifications' && <NotificationsTab />}
-            {currentTab === 'security' && <SecurityTab />}
+            {currentTab === 'mint-info' && <MintInfoTab />}
           </Grid>
         </Grid>
       </Container>

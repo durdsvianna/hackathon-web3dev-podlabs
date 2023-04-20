@@ -56,7 +56,7 @@ const AvatarWrapper = styled(Avatar)(
 `
 );
 
-function SecurityTab() {
+function MintInfoTab() {
   const theme = useTheme();
 
   const [page, setPage] = useState(2);
@@ -295,4 +295,4 @@ function SecurityTab() {
   );
 }
 
-export default SecurityTab;
+export default MintInfoTab;

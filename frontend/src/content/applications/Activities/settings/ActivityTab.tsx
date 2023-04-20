@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import {
   Box,
+  TextField,
   CardMedia,
   Typography,
   Card,
@@ -35,7 +37,7 @@ const CardCover = styled(Card)(
     position: relative;
 
     .MuiCardMedia-root {
-      height: ${theme.spacing(26)};
+      height: ${theme.spacing(48)};
     }
 `
 );
@@ -48,7 +50,32 @@ const CardCoverAction = styled(Box)(
 `
 );
 
+const currencies = [
+  {
+    value: 'USD',
+    label: '$'
+  },
+  {
+    value: 'EUR',
+    label: '€'
+  },
+  {
+    value: 'BTC',
+    label: '฿'
+  },
+  {
+    value: 'JPY',
+    label: '¥'
+  }
+];
+
 function ActivityTab() {
+  const [currency, setCurrency] = useState('EUR');
+
+  const handleChange = (event) => {
+    setCurrency(event.target.value);
+  };
+
   return (
     <Card>
       <CardHeader
@@ -80,7 +107,7 @@ function ActivityTab() {
           Welcome to organizing your remote office for maximum productivity.
         </Typography>
       </Box>
-      <CardCover>
+      <CardCover sx={{ mx: 24 }}>
         <CardMedia
           sx={{ minHeight: 280 }}
           image="/static/images/placeholders/covers/5.jpg"
@@ -113,11 +140,57 @@ function ActivityTab() {
       <Divider />
       <CardActionsWrapper
         sx={{
-          display: { xs: 'block', md: 'flex' },
+          display: { xs: 12, md: 3 },
           alignItems: 'center',
           justifyContent: 'space-between'
         }}
       >
+        <Box>
+          <TextField 
+            required
+            id="outlined-required"
+            label="Required"
+            defaultValue="Hello World"
+          />
+          <TextField
+            id="outlined-select-currency-native"
+            select
+            label="Native select"
+            value={currency}
+            onChange={handleChange}
+            SelectProps={{
+              native: true
+            }}
+            helperText="Please select your currency"
+            sx={{ mx: 2 }}
+          >
+          {currencies.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+          </TextField>
+          <TextField 
+            id="outlined-required"
+            label="Required"
+            defaultValue="Hello World"
+            sx={{ mx: 2 }}
+          />
+          <TextField
+            required
+            id="outlined-required"
+            label="Required"
+            defaultValue="Hello World"
+          />
+        </Box>
+      </CardActionsWrapper>
+      <CardActionsWrapper
+        sx={{
+          display: { xs: 'block', md: 'flex' },
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >        
         <Box>
           <Button startIcon={<ThumbUpAltTwoToneIcon />} variant="contained">
             Like

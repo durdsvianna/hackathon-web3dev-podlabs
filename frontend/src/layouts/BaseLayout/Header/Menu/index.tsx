@@ -129,6 +129,9 @@ function HeaderMenu({data}) {
         <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activity-settings">
           Activity Settings
         </MenuItem>
+        <MenuItem sx={{ px: 3 }} component={NavLink} to="/components">
+          Template
+        </MenuItem>
       </Menu>
     </>
   );

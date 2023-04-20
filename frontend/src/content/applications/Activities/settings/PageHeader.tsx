@@ -9,10 +9,10 @@ function PageHeader() {
   return (
     <>
       <Typography variant="h3" component="h3" gutterBottom>
-        Activity Settings
+      Wizard Activity Mint 
       </Typography>
       <Typography variant="subtitle2">
-        {user.name}, this is the activity settings panel.
+        {user.name}, this is the wizard panel to mint activities.
       </Typography>
     </>
   );
