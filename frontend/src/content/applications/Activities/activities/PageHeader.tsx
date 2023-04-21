@@ -1,30 +1,25 @@
+import { useState } from 'react';
 import { Typography, Button, Grid } from '@mui/material';
-
-import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { useDateFormatter } from 'src/utils/DateUtils';
+import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 function PageHeader() {
+  const { getFormattedDate, languageFormat, setLanguageFormat } = useDateFormatter('pt-BR');
+  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
+  const [dateBR, setDateBR] = useState<string>("");
+
+  const shortenedAddressOrName = shortenAddressOrEnsName();
+
   const user = {
-    name: 'Catherine Pike',
+    name: shortenedAddressOrName,
     avatar: '/static/images/avatars/1.jpg'
   };
   return (
     <Grid container justifyContent="space-between" alignItems="center">
       <Grid item>
-        <Typography variant="h3" component="h3" gutterBottom>
-          Activities
-        </Typography>
         <Typography variant="subtitle2">
-          {user.name}, these are your recent activities
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Button
-          sx={{ mt: { xs: 2, md: 0 } }}
-          variant="contained"
-          startIcon={<AddTwoToneIcon fontSize="small" />}
-        >
-          Create Activity
-        </Button>
+        Hey! <Typography variant="h4" component="h4">{user.name}</Typography>, today's a good day to manage activities'! Today is <Typography variant="h4" component="h4">{dateBR}</Typography>. This is the wizard panel to create and mint your activities.
+        </Typography> 
       </Grid>
     </Grid>
   );

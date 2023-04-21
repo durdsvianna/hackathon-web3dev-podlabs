@@ -43,7 +43,7 @@ interface Filters {
 const getStatusLabel = (cryptoOrderStatus: CryptoOrderStatus): JSX.Element => {
   const map = {
     failed: {
-      text: 'Failed',
+      text: 'Burned',
       color: 'error'
     },
     completed: {
@@ -202,7 +202,7 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
               </FormControl>
             </Box>
           }
-          title="Recent Activities"
+          title="Activities"
         />
       )}
       <Divider />
@@ -218,10 +218,10 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                   onChange={handleSelectAllCryptoOrders}
                 />
               </TableCell>
-              <TableCell>Order Details</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Source</TableCell>
-              <TableCell align="right">Amount</TableCell>
+              <TableCell>Activity Title/Expire Date</TableCell>
+              <TableCell>Activity Token</TableCell>
+              <TableCell>Creator</TableCell>
+              <TableCell align="right">Reward</TableCell>
               <TableCell align="right">Status</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
