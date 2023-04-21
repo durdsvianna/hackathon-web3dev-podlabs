@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useState, forwardRef, useCallback } from 'react';
+import {useDropzone} from 'react-dropzone';
+import bgimage from 'src/images/image.svg';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 import {
   Box,
   TextField,
@@ -15,12 +18,19 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs, { Dayjs } from 'dayjs';
+import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
 import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 import Text from 'src/components/Text';
+import { usePinataUploader, useInfuraUploader } from "src/utils/IpfsUtils"
+import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 const Input = styled('input')({
   display: 'none'
@@ -50,91 +60,180 @@ const CardCoverAction = styled(Box)(
 `
 );
 
-const currencies = [
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
+  function NumericFormatCustom(props, ref) {
+    const { onChange, ...other } = props;
+
+    return (
+      <NumericFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={(values) => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.value,
+            },
+          });
+        }}
+        thousandSeparator
+        valueIsNumericString
+        prefix="$"
+      />
+    );
+  },
+);
+
+const activityInitialStatus = [
   {
-    value: 'USD',
-    label: '$'
+    value: '1',
+    label: 'Initial State'
   },
   {
-    value: 'EUR',
-    label: '€'
+    value: '2',
+    label: 'Scheduled'
+  }
+];
+const activityDificulties = [
+  {
+    value: '1',
+    label: 'Common'
   },
   {
-    value: 'BTC',
-    label: '฿'
+    value: '2',
+    label: 'Normal'
   },
   {
-    value: 'JPY',
-    label: '¥'
+    value: '3',
+    label: 'Complex'
   }
 ];
 
 function ActivityTab() {
-  const [currency, setCurrency] = useState('EUR');
-
-  const handleChange = (event) => {
-    setCurrency(event.target.value);
+  const unnamed = "Unnamed";
+  const [valueReward, setValueReward] = useState<string>('0');
+  const [activityStatus, setActivityStatus] = useState('');
+  const [activityDificulty, setActivityDificulty] = useState('');
+  const [nameOrAddress, setNameOrAddress] = useState(unnamed);
+  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState('');
+  const [value, setValue] = useState<DatePickerProps<Dayjs> | null>(null);
+  const [imageCover , setImageCover] = useState(bgimage);
+  const [image , setImage] = useState<string | ArrayBuffer>();
+  const [imageFile , setImageFile] = useState<File>();
+  const [url , setUrl] = useState('src/images/image.svg');
+  const [imageCoverLoaded , setImageCoverLoaded] = useState(false);
+  const [ nft, setNft] = useState({
+    name: '',
+    description: '',
+    image: '',
+    attributes: []
+  });
+  const [inputFields, setInputFields] = useState([{ },]);
+  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
+  const { uploadToInfura, uploaded, setUploaded } = useInfuraUploader({ });
+  
+  const handleChangeTitle = (event) => {
+    setTitle(event.target.value);
+    nft.name = event.target.value;
   };
+  const handleChangeDescription = (event) => {
+    setDescription(event.target.value);
+    nft.description = event.target.value;
+  };
+  const handleLoadCreator = () => {
+    if (nameOrAddress === unnamed){
+      setNameOrAddress(shortenAddressOrEnsName());  
+    }
+  }
+  const handleChange = (event) => {
+    setActivityStatus(event.target.value);
+  };
+  const handleChangeDificulty = (event) => {
+    setActivityDificulty(event.target.value);
+  };
+  const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValueReward(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("entrou no submit ");
+    //armazena imagem IPS
+    try {
+      const ipfsImageResult = uploadToInfura(imageFile);  
+      console.log("ipfsImageResult: ", ipfsImageResult.then(result => console.log("resultPromise", result)));
+    } catch (error) {
+      console.log("Erro: ", error);
+    }
+    
+    //realiza o mint da NFT
+  };
+
+  const onDrop = useCallback(async(acceptedFiles) => {
+      console.log("bgimage", bgimage)
+      const file = acceptedFiles[0]
+      let reader = new FileReader()
+
+      reader.readAsDataURL(file)
+      reader.onload = () => {
+        console.log("imageCover", imageCover);
+        console.log("image", image);
+        console.log("file", file);
+        console.log("reader", reader);
+        setImage(reader.result);
+        setImageFile(file);
+        setUrl(URL.createObjectURL(file));
+        console.log("url", url);    
+      }
+
+      setImageCoverLoaded(true);    
+      
+  } , [setImage]
+  );
+
+  const {getRootProps , getInputProps , open} = useDropzone({onDrop , 
+    maxFiles:1 , 
+    accept : {'image/*' : []} ,
+    noClick : true ,
+    noKeyboard : true}
+  );
+
 
   return (
     <Card>
-      <CardHeader
-        avatar={<Avatar src="/static/images/avatars/5.jpg" />}
-        action={
-          <IconButton color="primary">
-            <MoreHorizTwoToneIcon fontSize="medium" />
-          </IconButton>
-        }
-        titleTypographyProps={{ variant: 'h4' }}
-        subheaderTypographyProps={{ variant: 'subtitle2' }}
-        title="Allison Lipshutz"
-        subheader={
-          <>
-            Managing Partner,{' '}
-            <Link href="#" underline="hover">
-              #software
-            </Link>
-            ,{' '}
-            <Link href="#" underline="hover">
-              #managers
-            </Link>
-            , Google Inc.
-          </>
-        }
-      />
-      <Box px={3} pb={2}>
-        <Typography variant="h4" fontWeight="normal">
-          Welcome to organizing your remote office for maximum productivity.
-        </Typography>
-      </Box>
-      <CardCover sx={{ mx: 24 }}>
-        <CardMedia
-          sx={{ minHeight: 280 }}
-          image="/static/images/placeholders/covers/5.jpg"
-          title="Activity NFT"
-        />      
-        <CardCoverAction>
-          <Input accept="image/*" id="change-cover" multiple type="file" />
-          <label htmlFor="change-cover">
-            <Button
-              startIcon={<UploadTwoToneIcon />}
-              variant="contained"
-              component="span"
-            >
-              Change image
-            </Button>
-          </label>
-        </CardCoverAction>
-      </CardCover>      
+      <CardHeader title="Create activity and mint your NFT." />
+      <div  {...getRootProps({className :'md:h-52 sm:h-44 h-auto bg-light-grey border-2 border-light-blue border-dashed rounded-md'})}>
+        <CardCover >
+          <CardMedia
+            sx={{ minHeight: 280 }}
+            image={imageCoverLoaded ? url : imageCover}
+            title="Activity NFT"
+          />      
+          <CardCoverAction>
+            <input {...getInputProps({name : 'image'})} id="change-cover" multiple />
+            <p className='text-slate-400 md:text-md text-center mt-4 text-sm'>Drag & Drop your image here</p>
+            <label htmlFor="change-cover">
+              <Button
+                startIcon={<UploadTwoToneIcon />}
+                variant="contained"
+                component="span"
+              >
+                Change image
+              </Button>
+            </label>
+          </CardCoverAction>
+        </CardCover> 
+      </div>
+           
       <Box p={3}>
         <Typography variant="h2" sx={{ pb: 1 }}>
-          Organizing Your Remote Office for Maximum Productivity
-        </Typography>
-        <Typography variant="subtitle2">
-          <Link href="#" underline="hover">
-            example.com
-          </Link>{' '}
-          • 4 mins read
+          Create your activity quickly and easily
         </Typography>
       </Box>
       <Divider />
@@ -145,43 +244,91 @@ function ActivityTab() {
           justifyContent: 'space-between'
         }}
       >
-        <Box>
-          <TextField 
-            required
-            id="outlined-required"
-            label="Required"
-            defaultValue="Hello World"
-          />
-          <TextField
-            id="outlined-select-currency-native"
-            select
-            label="Native select"
-            value={currency}
-            onChange={handleChange}
-            SelectProps={{
-              native: true
-            }}
-            helperText="Please select your currency"
-            sx={{ mx: 2 }}
-          >
-          {currencies.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-          </TextField>
-          <TextField 
-            id="outlined-required"
-            label="Required"
-            defaultValue="Hello World"
-            sx={{ mx: 2 }}
-          />
-          <TextField
-            required
-            id="outlined-required"
-            label="Required"
-            defaultValue="Hello World"
-          />
+        <Box
+          component="form"
+          sx={{
+            '& .MuiTextField-root': { m: 1 }
+          }}
+          noValidate
+          autoComplete="off"
+        >
+          <div>
+            <TextField fullWidth 
+              required
+              id="outlined-required"
+              label="Title"
+              onChange={handleChangeTitle}
+              placeholder="Title"
+            />
+          </div>
+          <div>
+            <TextField multiline fullWidth 
+              required
+              id="outlined-required"
+              label="Description"
+              onChange={handleChangeDescription}
+              placeholder="A full description about the ativity."
+              maxRows="8"
+            />
+          </div>                   
+          <div>        
+            <DatePicker
+              label="Expire Date"
+              value={value}
+              onChange={(newValue) => setValue(newValue)}
+            />      
+            <TextField
+              id="outlined-select-currency-native"
+              select
+              label="Status of activity"
+              value={activityStatus}
+              onChange={handleChange}
+              SelectProps={{
+                native: true
+              }}
+              helperText="Please select your currency"
+            >
+            {activityInitialStatus.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+            </TextField>
+
+            <TextField
+              id="outlined-select-currency-native"
+              select
+              label="Dificulty of activity"
+              value={activityDificulty}
+              onChange={handleChangeDificulty}
+              SelectProps={{
+                native: true
+              }}
+              helperText="Please select the dificulty of ativity."
+            >
+            {activityDificulties.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+            </TextField>
+
+            <TextField 
+              id="outlined-required"
+              label="Creator"
+              disabled
+              onBeforeInput={handleLoadCreator}
+              defaultValue={nameOrAddress}
+            />
+            <TextField
+              label="Reward ($)"
+              value={valueReward}
+              onChange={handleChangeReward}
+              InputProps={{
+                inputComponent: NumericFormatCustom as any,
+              }}
+            />
+          </div>          
         </Box>
       </CardActionsWrapper>
       <CardActionsWrapper
@@ -192,31 +339,12 @@ function ActivityTab() {
         }}
       >        
         <Box>
-          <Button startIcon={<ThumbUpAltTwoToneIcon />} variant="contained">
-            Like
-          </Button>
-          <Button
-            startIcon={<CommentTwoToneIcon />}
-            variant="outlined"
-            sx={{ mx: 2 }}
-          >
-            Comment
-          </Button>
-          <Button startIcon={<ShareTwoToneIcon />} variant="outlined">
-            Share
-          </Button>
+          
         </Box>
         <Box sx={{ mt: { xs: 2, md: 0 } }}>
-          <Typography variant="subtitle2" component="span">
-            <Text color="black">
-              <b>485</b>
-            </Text>{' '}
-            reactions •{' '}
-            <Text color="black">
-              <b>63</b>
-            </Text>{' '}
-            comments
-          </Typography>
+          <Button onClick={handleSubmit} variant="contained">
+            Create Activity
+          </Button>
         </Box>
       </CardActionsWrapper>
     </Card>

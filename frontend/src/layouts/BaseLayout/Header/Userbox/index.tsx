@@ -22,8 +22,7 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
-
-import { useAccount, useEnsName } from 'wagmi';
+import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -85,17 +84,19 @@ function stringAvatar(name: string) {
     sx: {
       bgcolor: stringToColor(name)
     },
-    children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`
+    children: `${name}`
   };
 }
 
 function HeaderUserbox({ disconnect }) {
-  const { data: accountData } = useAccount()
-  const { data: ensNameData } = useEnsName({ address: accountData?.address })
+  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
+  const shortenedAddressOrName = shortenAddressOrEnsName(); 
+  
+
   const user = {
-    name: ensNameData ? ` (${accountData?.address})` : null,
+    name: shortenedAddressOrName,
     avatar: '/static/images/avatars/1.jpg',
-    jobtitle: ensNameData ?? accountData?.address
+    jobtitle: "Member"
   };
 
   const ref = useRef<any>(null);
@@ -118,7 +119,7 @@ function HeaderUserbox({ disconnect }) {
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" {...stringAvatar(ensNameData ? ensNameData : '0x '+ accountData?.address)} />
+        <Avatar variant="rounded" {...stringAvatar(shortenedAddressOrName)} />
         <Hidden mdDown>
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
@@ -145,7 +146,7 @@ function HeaderUserbox({ disconnect }) {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" {...stringAvatar(ensNameData ? ensNameData : '0x '+ accountData?.address)} />
+          <Avatar variant="rounded" {...stringAvatar(shortenedAddressOrName)} />
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
