@@ -74,7 +74,7 @@ const CardAddAction = styled(Card)(
 `
 );
 
-function Wallets() {
+function Activities() {
   return (
     <>
       <Box
@@ -85,16 +85,16 @@ function Wallets() {
           pb: 3
         }}
       >
-        <Typography variant="h3">Wallets</Typography>
+        <Typography variant="h3">Atividades</Typography>
         <Button
           size="small"
           variant="outlined"
           startIcon={<AddTwoToneIcon fontSize="small" />}
         >
-          Add new wallet
+          Adicionar nova Atividade
         </Button>
       </Box>
-      <Grid container spacing={3}>
+      <Grid container spacing={3}> 
         <Grid xs={12} sm={6} md={3} item>
           <Card
             sx={{
@@ -105,14 +105,14 @@ function Wallets() {
               <AvatarWrapper>
                 <img
                   alt="BTC"
-                  src="/static/images/placeholders/logo/bitcoin.png"
+                  src="/static/images/avatars/1.jpg"
                 />
               </AvatarWrapper>
               <Typography variant="h5" noWrap>
-                Bitcoin
+                Atividade #2
               </Typography>
               <Typography variant="subtitle1" noWrap>
-                BTC
+                Criar quadro de Horários
               </Typography>
               <Box
                 sx={{
@@ -120,10 +120,10 @@ function Wallets() {
                 }}
               >
                 <Typography variant="h3" gutterBottom noWrap>
-                  $3,586.22
+                  Bounty $2
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  1.25843 BTC
+                  Em Andamento
                 </Typography>
               </Box>
             </CardContent>
@@ -138,15 +138,15 @@ function Wallets() {
             <CardContent>
               <AvatarWrapper>
                 <img
-                  alt="Ripple"
-                  src="/static/images/placeholders/logo/ripple.png"
+                  alt="Avatar2"
+                  src="/static/images/avatars/2.jpg"
                 />
               </AvatarWrapper>
               <Typography variant="h5" noWrap>
-                Ripple
+                Atividade #3
               </Typography>
               <Typography variant="subtitle1" noWrap>
-                XRP
+                Criar Design NFTs
               </Typography>
               <Box
                 sx={{
@@ -154,10 +154,10 @@ function Wallets() {
                 }}
               >
                 <Typography variant="h3" gutterBottom noWrap>
-                  $586.83
+                  Bounty $5
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  5,783 XRP
+                  Em Andamento
                 </Typography>
               </Box>
             </CardContent>
@@ -172,15 +172,15 @@ function Wallets() {
             <CardContent>
               <AvatarWrapper>
                 <img
-                  alt="Cardano"
-                  src="/static/images/placeholders/logo/cardano.png"
+                  alt="Avatar3"
+                  src="/static/images/avatars/3.jpg"
                 />
               </AvatarWrapper>
               <Typography variant="h5" noWrap>
-                Cardano
+                Atividade #5
               </Typography>
               <Typography variant="subtitle1" noWrap>
-                ADA
+                Criar Design Curso
               </Typography>
               <Box
                 sx={{
@@ -188,17 +188,17 @@ function Wallets() {
                 }}
               >
                 <Typography variant="h3" gutterBottom noWrap>
-                  $54,985.00
+                  Bounty $7
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  34,985 ADA
+                  Em Andamento
                 </Typography>
               </Box>
             </CardContent>
           </Card>
         </Grid>
         <Grid xs={12} sm={6} md={3} item>
-          <Tooltip arrow title="Click to add a new wallet">
+          <Tooltip arrow title="Clique para adicionar nova atividade">
             <CardAddAction>
               <CardActionArea
                 sx={{
@@ -219,4 +219,4 @@ function Wallets() {
   );
 }
 
-export default Wallets;
+export default Activities;
