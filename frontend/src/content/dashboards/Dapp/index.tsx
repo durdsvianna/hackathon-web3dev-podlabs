@@ -5,7 +5,7 @@ import { Container, Grid } from '@mui/material';
 import Footer from 'src/components/Footer';
 
 import AccountBalance from './AccountBalance';
-import Wallets from './Wallets';
+import Activities from './Activities';
 import AccountSecurity from './AccountSecurity';
 import WatchList from './WatchList';
 
@@ -30,7 +30,7 @@ function DashboardDapp() {
             <AccountBalance />
           </Grid>
           <Grid item lg={8} xs={12}>
-            <Wallets />
+            <Activities />
           </Grid>
           <Grid item lg={4} xs={12}>
             <AccountSecurity />
