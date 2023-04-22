@@ -12,28 +12,10 @@ const projectSecret = "ebadc15ff9f8ca6c8971c7e208ffc1c3";
 
 const JWT = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1MzBlZjNhMy03N2VkLTQxNzEtYmUzNy1kZTM1ODJmMzNiNGIiLCJlbWFpbCI6ImR1cmRzLnZpYW5uYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJpZCI6IkZSQTEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX0seyJpZCI6Ik5ZQzEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiNzViNGM3NWE5MTAxZWYyNTk5N2IiLCJzY29wZWRLZXlTZWNyZXQiOiJlNzQwMGI2NGNlOWQ2ZmIzOWU1NTUzNTQ3ODEzMGJmZjEzYTYwY2EwOTgwMmEwY2ExOTk5YmE3Yjg2NmIxNWYzIiwiaWF0IjoxNjgwMjEwODYxfQ.IupimJof9irUhQn66z8M1HT8hIO8EDzPyN4rXEqXavQ'
 
-export function useDateFormatter(language) {
-  const [languageFormat, setLanguageFormat] = useState<string>(language);
-
-  function getFormattedDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    if (languageFormat === 'pt-BR') {
-      return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-    }
-
-    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-  }
-
-  return { getFormattedDate, languageFormat, setLanguageFormat };
-}
-export function useInfuraUploader(file){
-  const [uploaded, setUploaded] = useState<boolean>(false);
+export function useInfuraUploader(){
   const [uploadResult, setUploadResult] = useState({});
 
-  async function uploadToInfura(file: File): Promise<{}> {
+  async function uploadToInfura(file: File): Promise<{ cid: { }, path: string, size: number }> {
     /* configure Infura auth settings */
     // const projectId = process.env.INFURA_PROJECT_ID;
     // const projectSecret = process.env.INFURA_API_KEY_SECRET;
@@ -48,16 +30,11 @@ export function useInfuraUploader(file){
       headers: {
           authorization: auth,
       }
-    });
-    const result = await clientIpfs.add(file);
-    console.log("result", result);
-    setUploadResult({
-      cid: result,
-      path: result.path
-    });
-    return uploadResult;
+    });    
+    const addResult = await clientIpfs.add(file); 
+    return addResult;        
   }
-  return { uploadToInfura, uploaded, setUploaded, uploadResult };
+  return { uploadToInfura, uploadResult, setUploadResult };
 }
 
 export function usePinataUploader(sourceUrl){

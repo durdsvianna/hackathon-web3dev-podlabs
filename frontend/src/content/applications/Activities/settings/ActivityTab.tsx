@@ -10,31 +10,18 @@ import {
   Card,
   CardHeader,
   Divider,
-  Avatar,
-  IconButton,
   Button,
-  CardActions,
-  Link
+  CardActions
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs, { Dayjs } from 'dayjs';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { Dayjs } from 'dayjs';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
-import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
-import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
-import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
-import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
-import Text from 'src/components/Text';
-import { usePinataUploader, useInfuraUploader } from "src/utils/IpfsUtils"
+import { useInfuraUploader } from "src/utils/IpfsUtils"
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { number } from 'prop-types';
 
-const Input = styled('input')({
-  display: 'none'
-});
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
      background: ${theme.colors.alpha.black[5]};
@@ -134,52 +121,76 @@ function ActivityTab() {
     image: '',
     attributes: []
   });
+  const [ activity, setActivity] = useState({
+    title: '',
+    description: '',
+    image: '',
+    expireDate: Date,
+    status: '',
+    dificulty: '',
+    creator: '',
+    reward: '',
+    nft: nft
+  });
+  
   const [inputFields, setInputFields] = useState([{ },]);
   const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
-  const { uploadToInfura, uploaded, setUploaded } = useInfuraUploader({ });
+  const { uploadToInfura, uploadResult, setUploadResult } = useInfuraUploader();
   
   const handleChangeTitle = (event) => {
     setTitle(event.target.value);
     nft.name = event.target.value;
+    activity.title = event.target.value;
   };
   const handleChangeDescription = (event) => {
     setDescription(event.target.value);
     nft.description = event.target.value;
+    activity.description = event.target.value;
   };
   const handleLoadCreator = () => {
     if (nameOrAddress === unnamed){
-      setNameOrAddress(shortenAddressOrEnsName());  
+      const member = shortenAddressOrEnsName();
+      setNameOrAddress(member);  
+      activity.creator = member;
     }
   }
   const handleChange = (event) => {
     setActivityStatus(event.target.value);
+    activity.status = event.target.value;
   };
   const handleChangeDificulty = (event) => {
     setActivityDificulty(event.target.value);
+    activity.dificulty = event.target.value;
   };
   const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValueReward(event.target.value);
+    activity.reward = event.target.value;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
-    console.log("entrou no submit ");
     //armazena imagem IPS
     try {
-      const ipfsImageResult = uploadToInfura(imageFile);  
-      console.log("ipfsImageResult: ", ipfsImageResult.then(result => console.log("resultPromise", result)));
+      const ipfsImageResult = await uploadToInfura(imageFile);        
+      setUploadResult(ipfsImageResult); 
+      nft.image = ipfsImageResult.path;
+      console.log("ipfsImageResult", ipfsImageResult);         
+
     } catch (error) {
       console.log("Erro: ", error);
     }
     
     //realiza o mint da NFT
+    console.log("nft", nft);
+    console.log("activity", activity);
   };
 
   const onDrop = useCallback(async(acceptedFiles) => {
       console.log("bgimage", bgimage)
       const file = acceptedFiles[0]
       let reader = new FileReader()
-
+      setImageFile(file);
+        
       reader.readAsDataURL(file)
       reader.onload = () => {
         console.log("imageCover", imageCover);
@@ -187,14 +198,13 @@ function ActivityTab() {
         console.log("file", file);
         console.log("reader", reader);
         setImage(reader.result);
-        setImageFile(file);
         setUrl(URL.createObjectURL(file));
         console.log("url", url);    
       }
 
       setImageCoverLoaded(true);    
       
-  } , [setImage]
+  } , [setImageFile]
   );
 
   const {getRootProps , getInputProps , open} = useDropzone({onDrop , 
