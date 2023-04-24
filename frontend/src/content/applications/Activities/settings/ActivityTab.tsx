@@ -18,8 +18,9 @@ import { styled } from '@mui/material/styles';
 import { Dayjs } from 'dayjs';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
-import { useInfuraUploader } from "src/utils/IpfsUtils"
+import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { useDateFormatter } from 'src/utils/DateUtils';
 import { number } from 'prop-types';
 
 const CardActionsWrapper = styled(CardActions)(
@@ -109,7 +110,7 @@ function ActivityTab() {
   const [nameOrAddress, setNameOrAddress] = useState(unnamed);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
-  const [value, setValue] = useState<DatePickerProps<Dayjs> | null>(null);
+  const [expireDate, setExpireDate] = useState<DatePickerProps<Dayjs> | null>(null);
   const [imageCover , setImageCover] = useState(bgimage);
   const [image , setImage] = useState<string | ArrayBuffer>();
   const [imageFile , setImageFile] = useState<File>();
@@ -119,70 +120,82 @@ function ActivityTab() {
     name: '',
     description: '',
     image: '',
+    external_url: process.env.ERC721_METADATA_EXTERNAL_LINK,
+    background_color: '',
+    animation_url: '',
+    youtube_url: '',
     attributes: []
-  });
-  const [ activity, setActivity] = useState({
-    title: '',
-    description: '',
-    image: '',
-    expireDate: Date,
-    status: '',
-    dificulty: '',
-    creator: '',
-    reward: '',
-    nft: nft
   });
   
   const [inputFields, setInputFields] = useState([{ },]);
   const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
-  const { uploadToInfura, uploadResult, setUploadResult } = useInfuraUploader();
+  const { getFormattedDate, languageFormat, setLanguageFormat } = useDateFormatter('pt-BR');
+  const { uploadToInfura, uploadToPinata, uploadResult, setUploadResult } = useIpfsUploader();
   
   const handleChangeTitle = (event) => {
     setTitle(event.target.value);
     nft.name = event.target.value;
-    activity.title = event.target.value;
   };
   const handleChangeDescription = (event) => {
     setDescription(event.target.value);
     nft.description = event.target.value;
-    activity.description = event.target.value;
   };
   const handleLoadCreator = () => {
     if (nameOrAddress === unnamed){
       const member = shortenAddressOrEnsName();
       setNameOrAddress(member);  
-      activity.creator = member;
+      nft.attributes = [...nft.attributes,{
+        trait_type: 'Creator',
+        value: member
+      }];
     }
   }
-  const handleChange = (event) => {
+  const handleChangeStatus = (event) => {
     setActivityStatus(event.target.value);
-    activity.status = event.target.value;
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Status',
+      value: event.target.value
+    }];
   };
+
   const handleChangeDificulty = (event) => {
     setActivityDificulty(event.target.value);
-    activity.dificulty = event.target.value;
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Dificulty',
+      value: event.target.value
+    }];
   };
   const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValueReward(event.target.value);
-    activity.reward = event.target.value;
+    setValueReward(event.target.value);  
   };
 
   const handleSubmit = async(event) => {
     event.preventDefault();
     //armazena imagem IPS
     try {
-      const ipfsImageResult = await uploadToInfura(imageFile);        
+      const ipfsImageResult = await uploadToPinata(imageFile);        
       setUploadResult(ipfsImageResult); 
-      nft.image = ipfsImageResult.path;
-      console.log("ipfsImageResult", ipfsImageResult);         
+      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.path;
+      
+      
+      console.log("ipfsImageResult", ipfsImageResult); 
+      console.log("expireDate", expireDate);         
 
     } catch (error) {
       console.log("Erro: ", error);
     }
     
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Expire Date',
+      value: expireDate
+    }];
+    
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Rewards',
+      value: valueReward
+    }];  
     //realiza o mint da NFT
     console.log("nft", nft);
-    console.log("activity", activity);
   };
 
   const onDrop = useCallback(async(acceptedFiles) => {
@@ -193,10 +206,10 @@ function ActivityTab() {
         
       reader.readAsDataURL(file)
       reader.onload = () => {
-        console.log("imageCover", imageCover);
-        console.log("image", image);
-        console.log("file", file);
-        console.log("reader", reader);
+        // console.log("imageCover", imageCover);
+        // console.log("image", image);
+        // console.log("file", file);
+        // console.log("reader", reader);
         setImage(reader.result);
         setUrl(URL.createObjectURL(file));
         console.log("url", url);    
@@ -272,27 +285,29 @@ function ActivityTab() {
             />
           </div>
           <div>
-            <TextField multiline fullWidth 
+            <TextField fullWidth 
               required
               id="outlined-required"
               label="Description"
               onChange={handleChangeDescription}
               placeholder="A full description about the ativity."
-              maxRows="8"
+              multiline
+              rows="6"
+              maxRows="18"
             />
           </div>                   
           <div>        
             <DatePicker
               label="Expire Date"
-              value={value}
-              onChange={(newValue) => setValue(newValue)}
+              value={expireDate}
+              onChange={(newValue) => setExpireDate(newValue)}
             />      
             <TextField
               id="outlined-select-currency-native"
               select
               label="Status of activity"
               value={activityStatus}
-              onChange={handleChange}
+              onChange={handleChangeStatus}
               SelectProps={{
                 native: true
               }}
