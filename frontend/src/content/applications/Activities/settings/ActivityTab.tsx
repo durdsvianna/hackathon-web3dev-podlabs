@@ -175,7 +175,21 @@ function ActivityTab() {
     try {
       const ipfsImageResult = await uploadToPinata(imageFile);        
       setUploadResult(ipfsImageResult); 
-      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.path;
+      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.IpfsHash;
+      
+      
+      console.log("ipfsImageResult", ipfsImageResult); 
+      console.log("expireDate", expireDate);         
+
+    } catch (error) {
+      console.log("Erro: ", error);
+    }
+    
+
+    try {
+      const ipfsImageResult = await uploadToPinata(imageFile);        
+      setUploadResult(ipfsImageResult); 
+      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.IpfsHash;
       
       
       console.log("ipfsImageResult", ipfsImageResult); 

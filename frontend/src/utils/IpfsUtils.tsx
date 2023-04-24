@@ -10,8 +10,8 @@ export function useIpfsUploader(){
 
   async function uploadToInfura(file: File): Promise<{ cid: { }, path: string, size: number }> {
     /* configure Infura auth settings */
-    const projectId = process.env.INFURA_PROJECT_ID;
-    const projectSecret = process.env.INFURA_API_KEY_SECRET;
+    const projectId = process.env.REACT_APP_INFURA_PROJECT_ID;
+    const projectSecret = process.env.REACT_APP_INFURA_API_KEY_SECRET;
     const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
     /* Create an instance of the client */
     const clientIpfs = create({
@@ -26,10 +26,10 @@ export function useIpfsUploader(){
     return addResult;        
   }
 
-  async function uploadToPinata(file: File): Promise<{ cid: { }, path: string, size: number }> {
+  async function uploadToPinata(file: File): Promise<{ IpfsHash: { }, PinSize: number, Timestamp: string }> {
     /* configure pinata auth settings */
-    const JWT = process.env.PINATA_AUTH;
-    console.log("JWT", JWT)
+    const JWT = process.env.REACT_APP_PINATA_AUTH;
+    console.log("JWT", JWT);
     const formData = new FormData();
     formData.append('file', file)
     const metadata = JSON.stringify({
