@@ -10,31 +10,19 @@ import {
   Card,
   CardHeader,
   Divider,
-  Avatar,
-  IconButton,
   Button,
-  CardActions,
-  Link
+  CardActions
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs, { Dayjs } from 'dayjs';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { Dayjs } from 'dayjs';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
-import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
-import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
-import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
-import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
-import Text from 'src/components/Text';
-import { usePinataUploader, useInfuraUploader } from "src/utils/IpfsUtils"
+import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { useDateFormatter } from 'src/utils/DateUtils';
+import { number } from 'prop-types';
 
-const Input = styled('input')({
-  display: 'none'
-});
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
      background: ${theme.colors.alpha.black[5]};
@@ -122,7 +110,7 @@ function ActivityTab() {
   const [nameOrAddress, setNameOrAddress] = useState(unnamed);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
-  const [value, setValue] = useState<DatePickerProps<Dayjs> | null>(null);
+  const [expireDate, setExpireDate] = useState<DatePickerProps<Dayjs> | null>(null);
   const [imageCover , setImageCover] = useState(bgimage);
   const [image , setImage] = useState<string | ArrayBuffer>();
   const [imageFile , setImageFile] = useState<File>();
@@ -132,11 +120,17 @@ function ActivityTab() {
     name: '',
     description: '',
     image: '',
+    external_url: process.env.ERC721_METADATA_EXTERNAL_LINK,
+    background_color: '',
+    animation_url: '',
+    youtube_url: '',
     attributes: []
   });
+  
   const [inputFields, setInputFields] = useState([{ },]);
   const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
-  const { uploadToInfura, uploaded, setUploaded } = useInfuraUploader({ });
+  const { getFormattedDate, languageFormat, setLanguageFormat } = useDateFormatter('pt-BR');
+  const { uploadToInfura, uploadToPinata, uploadResult, setUploadResult } = useIpfsUploader();
   
   const handleChangeTitle = (event) => {
     setTitle(event.target.value);
@@ -148,53 +142,96 @@ function ActivityTab() {
   };
   const handleLoadCreator = () => {
     if (nameOrAddress === unnamed){
-      setNameOrAddress(shortenAddressOrEnsName());  
+      const member = shortenAddressOrEnsName();
+      setNameOrAddress(member);  
+      nft.attributes = [...nft.attributes,{
+        trait_type: 'Creator',
+        value: member
+      }];
     }
   }
-  const handleChange = (event) => {
+  const handleChangeStatus = (event) => {
     setActivityStatus(event.target.value);
-  };
-  const handleChangeDificulty = (event) => {
-    setActivityDificulty(event.target.value);
-  };
-  const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValueReward(event.target.value);
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Status',
+      value: event.target.value
+    }];
   };
 
-  const handleSubmit = (event) => {
+  const handleChangeDificulty = (event) => {
+    setActivityDificulty(event.target.value);
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Dificulty',
+      value: event.target.value
+    }];
+  };
+  const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValueReward(event.target.value);  
+  };
+
+  const handleSubmit = async(event) => {
     event.preventDefault();
-    console.log("entrou no submit ");
     //armazena imagem IPS
     try {
-      const ipfsImageResult = uploadToInfura(imageFile);  
-      console.log("ipfsImageResult: ", ipfsImageResult.then(result => console.log("resultPromise", result)));
+      const ipfsImageResult = await uploadToPinata(imageFile);        
+      setUploadResult(ipfsImageResult); 
+      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.IpfsHash;
+      
+      
+      console.log("ipfsImageResult", ipfsImageResult); 
+      console.log("expireDate", expireDate);         
+
     } catch (error) {
       console.log("Erro: ", error);
     }
     
+
+    try {
+      const ipfsImageResult = await uploadToPinata(imageFile);        
+      setUploadResult(ipfsImageResult); 
+      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.IpfsHash;
+      
+      
+      console.log("ipfsImageResult", ipfsImageResult); 
+      console.log("expireDate", expireDate);         
+
+    } catch (error) {
+      console.log("Erro: ", error);
+    }
+    
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Expire Date',
+      value: expireDate
+    }];
+    
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Rewards',
+      value: valueReward
+    }];  
     //realiza o mint da NFT
+    console.log("nft", nft);
   };
 
   const onDrop = useCallback(async(acceptedFiles) => {
       console.log("bgimage", bgimage)
       const file = acceptedFiles[0]
       let reader = new FileReader()
-
+      setImageFile(file);
+        
       reader.readAsDataURL(file)
       reader.onload = () => {
-        console.log("imageCover", imageCover);
-        console.log("image", image);
-        console.log("file", file);
-        console.log("reader", reader);
+        // console.log("imageCover", imageCover);
+        // console.log("image", image);
+        // console.log("file", file);
+        // console.log("reader", reader);
         setImage(reader.result);
-        setImageFile(file);
         setUrl(URL.createObjectURL(file));
         console.log("url", url);    
       }
 
       setImageCoverLoaded(true);    
       
-  } , [setImage]
+  } , [setImageFile]
   );
 
   const {getRootProps , getInputProps , open} = useDropzone({onDrop , 
@@ -262,27 +299,29 @@ function ActivityTab() {
             />
           </div>
           <div>
-            <TextField multiline fullWidth 
+            <TextField fullWidth 
               required
               id="outlined-required"
               label="Description"
               onChange={handleChangeDescription}
               placeholder="A full description about the ativity."
-              maxRows="8"
+              multiline
+              rows="6"
+              maxRows="18"
             />
           </div>                   
           <div>        
             <DatePicker
               label="Expire Date"
-              value={value}
-              onChange={(newValue) => setValue(newValue)}
+              value={expireDate}
+              onChange={(newValue) => setExpireDate(newValue)}
             />      
             <TextField
               id="outlined-select-currency-native"
               select
               label="Status of activity"
               value={activityStatus}
-              onChange={handleChange}
+              onChange={handleChangeStatus}
               SelectProps={{
                 native: true
               }}
