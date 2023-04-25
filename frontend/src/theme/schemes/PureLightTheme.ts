@@ -2,8 +2,8 @@ import { alpha, createTheme, lighten, darken } from '@mui/material';
 import '@mui/lab/themeAugmentation';
 
 const themeColors = {
-  primary: '#5569ff',
-  secondary: '#6E759F',
+  primary: '#4ce577',
+  secondary: '#7d7d7d',
   success: '#57CA22',
   warning: '#FFA319',
   error: '#FF1943',
@@ -243,8 +243,8 @@ export const PureLightTheme = createTheme({
     width: '290px'
   },
   header: {
-    height: '80px',
-    background: colors.alpha.white[100],
+    height: '100px',
+    background: '#171717',
     boxShadow: colors.shadows.cardSm,
     textColor: colors.secondary.main
   },
@@ -1146,7 +1146,7 @@ export const PureLightTheme = createTheme({
   },
   typography: {
     fontFamily:
-      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     h1: {
       fontWeight: 700,
       fontSize: 35

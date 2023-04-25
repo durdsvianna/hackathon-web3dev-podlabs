@@ -91,10 +91,7 @@ function HeaderMenu({data}) {
             component={NavLink}
             to="/dapp"
           >
-            <ListItemText
-              primaryTypographyProps={{ noWrap: true }}
-              primary="Home"
-            />
+            <img src="../../../web3dev.png" alt="Web3Dev" />
           </ListItem>          
           {
             data && <>
@@ -104,7 +101,7 @@ function HeaderMenu({data}) {
                 component={NavLink}
                 to="/dapp/activities"
               >
-                <ListItemText
+                <ListItemText 
                   primaryTypographyProps={{ noWrap: true }}
                   primary="Manage"
                 />
