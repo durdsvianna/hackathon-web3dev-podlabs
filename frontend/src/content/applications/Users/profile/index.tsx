@@ -5,26 +5,29 @@ import { Grid, Container } from '@mui/material';
 
 import ProfileCover from './ProfileCover';
 import RecentActivity from './RecentActivity';
-import Feed from './Feed';
-import PopularTags from './PopularTags';
+
+import { User } from 'src/models/user';
+import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 function ManagementUserProfile() {
-  const user = {
-    savedCards: 7,
-    name: 'Catherine Pike',
+
+  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
+  const shortenedAddressOrName = shortenAddressOrEnsName();
+
+  const user : User= {
+    name: shortenedAddressOrName,
     coverImg: '/static/images/placeholders/covers/5.jpg',
     avatar: '/static/images/avatars/4.jpg',
-    description:
-      "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage",
-    jobtitle: 'Web Developer',
+    description: "Description Profile",
+    jobTitle: 'Web Developer',
     location: 'Barcelona, Spain',
-    followers: '465'
+    social: '465',
   };
-
+  
   return (
     <>
       <Helmet>
-        <title>User Details - Management</title>
+        <title>Web3Dev User Profile</title>
       </Helmet>
       <Container sx={{ mt: 3 }} maxWidth="lg">
         <Grid
@@ -39,12 +42,6 @@ function ManagementUserProfile() {
           </Grid>
           <Grid item xs={12} md={4}>
             <RecentActivity />
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Feed />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <PopularTags />
           </Grid>
         </Grid>
       </Container>
