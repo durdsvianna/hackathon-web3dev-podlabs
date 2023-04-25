@@ -15,6 +15,9 @@ import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import { useState } from 'react';
 
 const Input = styled('input')({
   display: 'none'
@@ -79,46 +82,81 @@ const CardCoverAction = styled(Box)(
 );
 
 const ProfileCover = ({ user }) => {
+
+  const [coverImg, setCoverImg] = useState(user.coverImg);
+  const [avatar, setAvatar] = useState(user.avatar);
+
+  const handleChangeCover = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+  
+    reader.onloadend = () => {
+      setCoverImg(reader.result);
+    };
+  
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleChangeAvatar = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setAvatar(reader.result);
+    }
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  const handleButtonHome = () => {
+    window.location.href = "/dapp/#";
+  };
+
   return (
     <>
       <Box display="flex" mb={3}>
         <Tooltip arrow placement="top" title="Go back">
-          <IconButton color="primary" sx={{ p: 2, mr: 2 }}>
+          <IconButton color="primary" sx={{ p: 2, mr: 2 }} onClick={handleButtonHome}>
             <ArrowBackTwoToneIcon />
           </IconButton>
         </Tooltip>
         <Box>
           <Typography variant="h3" component="h3" gutterBottom>
-            Profile for {user.name}
+            Bem-vindo {user.name}
           </Typography>
           <Typography variant="subtitle2">
-            This is a profile page. Easy to modify, always blazing fast
+            Perfil do usuário {user.name}
           </Typography>
         </Box>
       </Box>
       <CardCover>
-        <CardMedia image={user.coverImg} />
+        <CardMedia image={coverImg} />
         <CardCoverAction>
-          <Input accept="image/*" id="change-cover" multiple type="file" />
+          <Input accept="image/*" id="change-cover" multiple type="file" onChange={handleChangeCover}/>
           <label htmlFor="change-cover">
             <Button
               startIcon={<UploadTwoToneIcon />}
               variant="contained"
               component="span"
             >
-              Change cover
+              Modificar papel de parede
             </Button>
           </label>
         </CardCoverAction>
       </CardCover>
       <AvatarWrapper>
-        <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+        <Avatar variant="rounded" alt={user.name} src={avatar} />
         <ButtonUploadWrapper>
           <Input
             accept="image/*"
             id="icon-button-file"
             name="icon-button-file"
             type="file"
+            onChange={handleChangeAvatar}
           />
           <label htmlFor="icon-button-file">
             <IconButton component="span" color="primary">
@@ -133,7 +171,7 @@ const ProfileCover = ({ user }) => {
         </Typography>
         <Typography variant="subtitle2">{user.description}</Typography>
         <Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
-          {user.jobtitle} | {user.location} | {user.followers} followers
+          {user.jobTitle} | {user.location} |
         </Typography>
         <Box
           display={{ xs: 'block', md: 'flex' }}
@@ -141,24 +179,18 @@ const ProfileCover = ({ user }) => {
           justifyContent="space-between"
         >
           <Box>
-            <Button size="small" variant="contained">
-              Follow
-            </Button>
-            <Button size="small" sx={{ mx: 1 }} variant="outlined">
-              View website
-            </Button>
+              <IconButton>
+                <GitHubIcon/>
+              </IconButton>
+
+            <IconButton>
+              <InstagramIcon/>
+            </IconButton>
+
             <IconButton color="primary" sx={{ p: 0.5 }}>
               <MoreHorizTwoToneIcon />
             </IconButton>
           </Box>
-          <Button
-            sx={{ mt: { xs: 2, md: 0 } }}
-            size="small"
-            variant="text"
-            endIcon={<ArrowForwardTwoToneIcon />}
-          >
-            See all {user.followers} connections
-          </Button>
         </Box>
       </Box>
     </>
