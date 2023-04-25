@@ -23,6 +23,7 @@ import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { User } from 'src/models/user';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -92,11 +93,15 @@ function HeaderUserbox({ disconnect }) {
   const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
   const shortenedAddressOrName = shortenAddressOrEnsName(); 
   
-
-  const user = {
+  const [avatar, setAvatar] = useState('/static/images/avatars/1.jpg')
+  const user : User = {
     name: shortenedAddressOrName,
-    avatar: '/static/images/avatars/1.jpg',
-    jobtitle: "Member"
+    avatar: avatar,
+    jobTitle: "Member",
+    coverImg: '',
+    description: '',
+    location: '',
+    social: ''
   };
 
   const ref = useRef<any>(null);
@@ -124,7 +129,7 @@ function HeaderUserbox({ disconnect }) {
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {user.jobTitle}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -150,7 +155,7 @@ function HeaderUserbox({ disconnect }) {
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {user.jobTitle}
             </UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>
