@@ -19,8 +19,8 @@ async function deployTokenShop(chainId) {
     await token.deployed();
     console.log("Token contract address:", token.address);
 
-    console.log("Mint 1000000 tokens do address:", process.env.PRIVATE_KEY);
-    await token.mint(process.env.PRIVATE_KEY, ethers.utils.parseEther("1000000"));
+    console.log("Mint 1000000 tokens do address (carteira MM de teste):", "0x289d4092FE8afdB0a9d2d7994219610D208F19d9");
+    await token.mint("0x289d4092FE8afdB0a9d2d7994219610D208F19d9", ethers.utils.parseEther("1000000"));
     console.log("Mint 1000000 tokens do address:", token.address);
     await token.mint(token.address, ethers.utils.parseEther("1000000"));
     

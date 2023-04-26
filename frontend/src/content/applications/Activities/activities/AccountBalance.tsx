@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -19,13 +19,14 @@ import TrendingUp from '@mui/icons-material/TrendingUp';
 import Text from 'src/components/Text';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
-
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 import { BigNumber, ethers } from 'ethers';
 import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 'wagmi';
-import TokenArtifact from "src/contracts/Token.json";
-import contractAddress from "src/contracts/contract-address.json";
-
-
+import NftERC721Artifact from "src/contracts/NftERC721.json";
+import contractAddress from "src/contracts/contract-nfterc721-address.json";
+import { useIpfsUploader } from "src/utils/IpfsUtils"
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
       background-color: ${theme.colors.success.main};
@@ -62,102 +63,126 @@ const ListItemAvatarWrapper = styled(ListItemAvatar)(
 `
 );
 
-
-const contractReadConfig = {
-  addressOrName: contractAddress.Token,
-  contractInterface: TokenArtifact.abi,
+const nftDefault = {
+  name: 'nft-name',
+  description: 'nft-description',
+  image: '/static/images/nfts/nft-blockchain-web3dev.png',
+  status: 'Concluido',
+  attributes: 'Comunidade',
+  creatorActivity: 'Douglas',
+  tag: 'tag#3',
+  dateLimit: 'Dezembro',
+  bounty: 4,
+  difficulty: 'Avancado',
 }
 
 const AccountBalance = () => {
   const theme = useTheme();
   const { data: accountData } = useAccount();
   const { data: signer, isError, isLoading } = useSigner();
-  //const { balance, setBalance } = useState(" ");
+  const { downloadJsonToPinata } = useIpfsUploader();
+  const [activityData, setActivityData] = useState<{
+                                            name: string,
+                                            description: string,
+                                            image: string,
+                                            status: string,
+                                            attributes: string,
+                                            creatorActivity: string,
+                                            tag: string,
+                                            dateLimit: string,
+                                            bounty: number,
+                                            difficulty: string}>(nftDefault);
   const [balance, setBalance] = useState<string>(" ");
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+                                            
   const contractConfig = {
     ...contractReadConfig,
     signerOrProvider: signer,
   };
-
+                                          
   const contract = useContract(contractConfig);
-  let balancePromise = contract.balanceOf(accountData.address);
-  console.log("balancePromise", balancePromise);
-  balancePromise.then(result => {
-      console.log("setBalance", ethers.utils.formatEther(result));
-      setBalance(ethers.utils.formatEther(result));
-    });
 
-  console.log("balance", balance);
+  const getActivityData = () : any => {
+    console.log("contract", contract);
+    //busca o tokenUri do ultimo nft mintado            
+    const tokenUriResult = contract.lastMinted();  
+    console.log("tokenUriResult", tokenUriResult);
+    
+    const metadata = downloadJsonToPinata(tokenUriResult).then(result => {
+        console.log("result", result);        
+        return result;        
+      });
+    
+    const activity = metadata.then(resultMetadata => {
+      const activityJson = JSON.parse(resultMetadata);
+      const activity = {
+        name: activityJson.name,
+        description: activityJson.description,
+        image: activityJson.image,
+        status: 'Concluido',
+        attributes: 'Comunidade',
+        creatorActivity: 'Douglas',
+        tag: 'tag#3',
+        dateLimit: 'Dezembro',
+        bounty: 4,
+        difficulty: 'Avancado',
+      };
+      return activity; 
+    })
+    return activity;
+  }
+  
+  const loadContractInfo = ()  => {
+    console.log("contract", contract);
+    //busca o tokenUri do ultimo nft mintado            
+    const tokenUriResult = contract.lastMinted();  
+    console.log("tokenUriResult", tokenUriResult);
+    
+    const metadata = downloadJsonToPinata(tokenUriResult).then(result => {
+        console.log("result", result);        
+        return result;        
+      });
+    
+    metadata.then(resultMetadata => {
+      const activityJson = JSON.parse(resultMetadata);
+      const activity = {
+        name: activityJson.name,
+        description: activityJson.description,
+        image: activityJson.image,
+        status: 'Concluido',
+        attributes: 'Comunidade',
+        creatorActivity: 'Douglas',
+        tag: 'tag#3',
+        dateLimit: 'Dezembro',
+        bounty: 4,
+        difficulty: 'Avancado',
+      }; 
+      console.log("activity", activity);
+      setActivityData(activity);
+      console.log("activityJson", activityJson);
+    })
 
-  const chartOptions: ApexOptions = { 
-    chart: {
-      background: 'transparent',
-      stacked: false,
-      toolbar: {
-        show: false
-      }
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '60%'
-        }
-      }
-    },
-    colors: ['#ff9900', '#1c81c2', '#333', '#5c6ac0'],
-    dataLabels: {
-      enabled: true,
-      formatter: function (val) {
-        return val + '%';
-      },
-      style: {
-        colors: [theme.colors.alpha.trueWhite[100]]
-      },
-      background: {
-        enabled: true,
-        foreColor: theme.colors.alpha.trueWhite[100],
-        padding: 8,
-        borderRadius: 4,
-        borderWidth: 0,
-        opacity: 0.3,
-        dropShadow: {
-          enabled: true,
-          top: 1,
-          left: 1,
-          blur: 1,
-          color: theme.colors.alpha.black[70],
-          opacity: 0.5
-        }
-      },
-      dropShadow: {
-        enabled: true,
-        top: 1,
-        left: 1,
-        blur: 1,
-        color: theme.colors.alpha.black[50],
-        opacity: 0.5
-      }
-    },
-    fill: {
-      opacity: 1
-    },
-    labels: ['Bitcoin', 'Ripple', 'Cardano', 'Ethereum'],
-    legend: {
-      labels: {
-        colors: theme.colors.alpha.trueWhite[100]
-      },
-      show: false
-    },
-    stroke: {
-      width: 0
-    },
-    theme: {
-      mode: theme.palette.mode
-    }
-  };
+    let balancePromise = contract.balanceOf(accountData.address);
+    console.log("balancePromise", balancePromise);
+    balancePromise.then(result => {
+        console.log("setBalance", ethers.utils.formatEther(result));
+        setBalance(ethers.utils.formatEther(result));
+      });
+  
+    console.log("balance", balance);
+    console.log("activityData", activityData);
+  }
 
-  const chartSeries = [10, 20, 25, 45];
-
+  useEffect(() => {
+    console.log("executed only once!");
+    //setActivityData(getActivityData());
+    
+    loadContractInfo();
+  }, []);
+  
   return (
     <Card>
       <Grid spacing={0} container>
@@ -169,7 +194,7 @@ const AccountBalance = () => {
               }}
               variant="h4"
             >
-              DAO Account Balance
+              NFT Account Balance
             </Typography>
             <Box>
               <Typography variant="h1" gutterBottom>
@@ -229,134 +254,37 @@ const AccountBalance = () => {
           xs={12}
           md={6}
         >
-          <Box
-            component="span"
-            sx={{
-              display: { xs: 'none', md: 'inline-block' }
-            }}
-          >
-            <Divider absolute orientation="vertical" />
-          </Box>
-          <Box py={4} pr={4} flex={1}>
-            <Grid container spacing={0}>
-              <Grid
-                xs={12}
-                sm={5}
-                item
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Chart
-                  height={250}
-                  options={chartOptions}
-                  series={chartSeries}
-                  type="donut"
-                />
-              </Grid>
-              <Grid xs={12} sm={7} item display="flex" alignItems="center">
-                <List
-                  disablePadding
-                  sx={{
-                    width: '100%'
-                  }}
-                >
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="BTC"
-                        src="/static/images/placeholders/logo/bitcoin.png"
-                      />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="BTC"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Bitcoin"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        20%
-                      </Typography>
-                      <Text color="success">+2.54%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="XRP"
-                        src="/static/images/placeholders/logo/ripple.png"
-                      />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="XRP"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Ripple"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        10%
-                      </Typography>
-                      <Text color="error">-1.22%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="ADA"
-                        src="/static/images/placeholders/logo/cardano.png"
-                      />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="ADA"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Cardano"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        40%
-                      </Typography>
-                      <Text color="success">+10.50%</Text>
-                    </Box>
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemAvatarWrapper>
-                      <img
-                        alt="ETH"
-                        src="/static/images/placeholders/logo/ethereum.png"
-                      />
-                    </ListItemAvatarWrapper>
-                    <ListItemText
-                      primary="ETH"
-                      primaryTypographyProps={{ variant: 'h5', noWrap: true }}
-                      secondary="Ethereum"
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        noWrap: true
-                      }}
-                    />
-                    <Box>
-                      <Typography align="right" variant="h4" noWrap>
-                        30%
-                      </Typography>
-                      <Text color="error">-12.38%</Text>
-                    </Box>
-                  </ListItem>
-                </List>
-              </Grid>
-            </Grid>
-          </Box>
+          <Box p={4} sx={{
+                  width: '94%'
+                }}>
+            <Typography
+              sx={{
+                pb: 3
+              }}
+              variant="h4"
+            >
+              Last activity created
+            </Typography>
+            <Card >
+              <CardMedia
+                sx={{ height: 180 }}
+                image={activityData.image}
+                title="Web3Dev Blockchain"
+              />
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                  {activityData.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {activityData.description}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small">Share</Button>
+                <Button size="small">Learn More</Button>
+              </CardActions>
+            </Card>
+          </Box>          
         </Grid>
       </Grid>
     </Card>
