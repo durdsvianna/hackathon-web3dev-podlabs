@@ -14,7 +14,7 @@ async function deployNftERC721(chainId) {
 
     console.log("Deploying the ERC-721 contract with the account:", deployerAddress);
     const NftERC721 = await ethers.getContractFactory("NftERC721");
-    const erc721 = await NftERC721.deploy(5, "Coleção DUH - Testnet", "DUH");
+    const erc721 = await NftERC721.deploy("Coleção DUH - Testnet", "DUH");
     console.log("NFT (ERC-721) contract address:", erc721.address);
     await erc721.deployed();
     

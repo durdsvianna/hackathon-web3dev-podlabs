@@ -6,7 +6,8 @@ import { create } from 'ipfs-http-client'
 import { Buffer } from 'buffer'
 
 export function useIpfsUploader(){
-  const [uploadResult, setUploadResult] = useState({});
+  const [uploadFileResult, setUploadFileResult] = useState({});
+  const [uploadJsonResult, setUploadJsonResult] = useState({});
 
   async function uploadToInfura(file: File): Promise<{ cid: { }, path: string, size: number }> {
     /* configure Infura auth settings */
@@ -26,7 +27,7 @@ export function useIpfsUploader(){
     return addResult;        
   }
 
-  async function uploadToPinata(file: File): Promise<{ IpfsHash: { }, PinSize: number, Timestamp: string }> {
+  async function uploadFileToPinata(file: File): Promise<{ IpfsHash: { }, PinSize: number, Timestamp: string }> {
     /* configure pinata auth settings */
     const JWT = process.env.REACT_APP_PINATA_AUTH;
     console.log("JWT", JWT);
@@ -54,5 +55,64 @@ export function useIpfsUploader(){
     return null;        
   }
 
-  return { uploadToInfura, uploadToPinata, uploadResult, setUploadResult };
+  async function uploadJsonToPinata(file: string, fileName: string): Promise<{ IpfsHash: { }, PinSize: number, Timestamp: string }> {
+    /* configure pinata auth settings */
+    const JWT = process.env.REACT_APP_PINATA_AUTH;
+    console.log("JWT", JWT);
+
+    var data = JSON.stringify({
+      "pinataOptions": {
+        "cidVersion": 1
+      },
+      "pinataMetadata": {
+        "name": fileName
+      },
+      "pinataContent": file
+    });
+
+    try{
+      const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: JWT
+        }
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+    return null;        
+  }
+
+  async function downloadJsonToPinata(tokenUri: string): Promise<any> 
+  {
+    /* configure pinata auth settings */
+    const JWT = process.env.REACT_APP_PINATA_AUTH;
+    try{
+      var config = {
+        method: 'get',
+        url: tokenUri,
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      };
+      
+      const res = await axios(config);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+    return null;        
+  }
+
+  return { 
+    uploadToInfura, 
+    uploadFileToPinata, 
+    uploadJsonToPinata,
+    downloadJsonToPinata, 
+    uploadFileResult, 
+    setUploadFileResult, 
+    uploadJsonResult, 
+    setUploadJsonResult 
+  };
 }
