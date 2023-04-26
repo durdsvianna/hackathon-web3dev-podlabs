@@ -81,10 +81,10 @@ const CardCoverAction = styled(Box)(
 `
 );
 
-const ProfileCover = ({ user }) => {
+const ProfileCover = ({ user: UserProfile }) => {
 
-  const [coverImg, setCoverImg] = useState(user.coverImg);
-  const [avatar, setAvatar] = useState(user.avatar);
+  const [coverImg, setCoverImg] = useState(UserProfile.coverImg);
+  const [avatar, setAvatar] = useState(UserProfile.avatar);
 
   const handleChangeCover = (event) => {
     const file = event.target.files[0];
@@ -126,10 +126,10 @@ const ProfileCover = ({ user }) => {
         </Tooltip>
         <Box>
           <Typography variant="h3" component="h3" gutterBottom>
-            Bem-vindo {user.name}
+            Bem-vindo {UserProfile.name}
           </Typography>
           <Typography variant="subtitle2">
-            Perfil do usuário {user.name}
+            Perfil do usuário {UserProfile.name}
           </Typography>
         </Box>
       </Box>
@@ -149,7 +149,7 @@ const ProfileCover = ({ user }) => {
         </CardCoverAction>
       </CardCover>
       <AvatarWrapper>
-        <Avatar variant="rounded" alt={user.name} src={avatar} />
+        <Avatar variant="rounded" alt={UserProfile.name} src={avatar} />
         <ButtonUploadWrapper>
           <Input
             accept="image/*"
@@ -167,11 +167,11 @@ const ProfileCover = ({ user }) => {
       </AvatarWrapper>
       <Box py={2} pl={2} mb={3}>
         <Typography gutterBottom variant="h4">
-          {user.name}
+          {UserProfile.name}
         </Typography>
-        <Typography variant="subtitle2">{user.description}</Typography>
+        <Typography variant="subtitle2">{UserProfile.description}</Typography>
         <Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
-          {user.jobTitle} | {user.location} |
+          {UserProfile.jobTitle} | {UserProfile.location} |
         </Typography>
         <Box
           display={{ xs: 'block', md: 'flex' }}
