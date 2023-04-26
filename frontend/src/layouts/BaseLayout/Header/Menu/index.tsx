@@ -4,7 +4,8 @@ import {
   ListItem,
   ListItemText,
   Menu,
-  MenuItem
+  MenuItem,
+  Typography
 } from '@mui/material';
 import { useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
@@ -103,7 +104,9 @@ function HeaderMenu({data}) {
               >
                 <ListItemText 
                   primaryTypographyProps={{ noWrap: true }}
-                  primary="Manage"
+                  primary={ 
+                  <Typography color={'white'} sx={{ "&:hover": { color: "green" } }}>Manage</Typography>
+                  }
                 />
               </ListItem>
               <ListItem
@@ -116,9 +119,9 @@ function HeaderMenu({data}) {
                   primaryTypographyProps={{ noWrap: true }}
                   primary={
                     <Box display="flex" alignItems="center">
-                      Dev
+                      <Typography color={'white'} sx={{ "&:hover": { color: "green" } }}>Dev</Typography>
                       <Box display="flex" alignItems="center" pl={0.3}>
-                        <ExpandMoreTwoToneIcon fontSize="small" />
+                        <ExpandMoreTwoToneIcon fontSize="small" sx={{ "&:hover": { color: "green" } }} />
                       </Box>
                     </Box>
                   }

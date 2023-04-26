@@ -56,10 +56,10 @@ function PageHeader() {
       </Grid>
       <Grid item>
         <Typography variant="h3" component="h3" gutterBottom>
-          Welcome, {user.name}!
+          Bem Vindo, {user.name}!
         </Typography>
         <Typography variant="subtitle2">
-          Today is a good day to start trading crypto assets!
+          Cheque suas atividades através do nosso portal!
         </Typography>
       </Grid>
     </Grid>

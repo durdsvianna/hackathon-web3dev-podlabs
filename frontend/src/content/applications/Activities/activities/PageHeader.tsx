@@ -17,9 +17,14 @@ function PageHeader() {
   return (
     <Grid container justifyContent="space-between" alignItems="center">
       <Grid item>
-        <Typography variant="subtitle2">
-        Hey! <Typography variant="h4" component="h4">{user.name}</Typography>, today's a good day to manage activities'! Today is <Typography variant="h4" component="h4">{dateBR}</Typography>. This is the wizard panel to create and mint your activities.
-        </Typography> 
+        <Typography variant="h3" component="h3">
+            Hello, {user.name}!
+            <Typography variant="subtitle2">
+            Today's a good day to create a new activity! 
+            <Typography variant="h4" textAlign={'center'} component="h4">{dateBR} </Typography>
+            This is the wizard panel to create and mint your activities.
+            </Typography>      
+          </Typography>
       </Grid>
     </Grid>
   );
