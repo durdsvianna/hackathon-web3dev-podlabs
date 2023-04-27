@@ -11,10 +11,9 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import CommentTwoToneIcon from '@mui/icons-material/CommentTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
-import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
-import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
 
 const Input = styled('input')({
@@ -83,10 +82,10 @@ const ProfileCover = ({ user }) => {
         </Tooltip>
         <Box>
           <Typography variant="h3" component="h3" gutterBottom>
-            Activity of {user.name}
+            Tarefa de Atividades de {user.name}
           </Typography>
           <Typography variant="subtitle2">
-            This is a activity page. Easy to modify, always blazing fast
+            Cheque suas atividades e as conclua
           </Typography>
         </Box>
       </Box>
@@ -99,40 +98,21 @@ const ProfileCover = ({ user }) => {
         </Typography>
         <Typography variant="subtitle2">{user.description}</Typography>
         <Typography sx={{ py: 2 }} variant="subtitle2" color="text.primary">
-          {user.jobtitle} | {user.location} | {user.followers} followers
+          {user.jobTitle} | {user.location} |
         </Typography>
-        <Box
-          display={{ xs: 'block', md: 'flex' }}
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Box>
-            <Button size="small" variant="contained">
-              Follow
-            </Button>
-            <Button sx={{ mx: 1 }}
-              startIcon={<CommentTwoToneIcon />}
-              variant="outlined"
-              size="small" 
-            >
-              Comment
-            </Button>
-            <Button size="small" sx={{ m: 1 }} variant="outlined">
-              View website
-            </Button>
+        <Box>
+              <IconButton>
+                <GitHubIcon/>
+              </IconButton>
+
+            <IconButton>
+              <InstagramIcon/>
+            </IconButton>
+
             <IconButton color="primary" sx={{ p: 0.5 }}>
               <MoreHorizTwoToneIcon />
             </IconButton>
           </Box>
-          <Button
-            sx={{ mt: { xs: 2, md: 0 } }}
-            size="small"
-            variant="text"
-            endIcon={<ArrowForwardTwoToneIcon />}
-          >
-            See all {user.followers} connections
-          </Button>
-        </Box>
       </Box>
     </>
   );

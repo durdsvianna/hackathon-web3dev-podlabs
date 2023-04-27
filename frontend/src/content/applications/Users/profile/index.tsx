@@ -4,8 +4,8 @@ import Footer from 'src/components/Footer';
 import { Grid, Container } from '@mui/material';
 
 import ProfileCover from './ProfileCover';
-import RecentActivity from './RecentActivity';
 
+import RecentActivity from 'src/components/RecentActivity';
 import UserProfile from 'src/components/User';
 
 function ManagementUserProfile() {

@@ -3,36 +3,19 @@ import Footer from 'src/components/Footer';
 
 import { Grid, Container } from '@mui/material';
 
-import { useAccount, useEnsName } from 'wagmi';
-
 import ProfileCover from './ProfileCover';
-import RecentActivity from './RecentActivity';
-import Feed from './Feed';
-import PopularTags from './PopularTags';
-
+import RecentActivity from 'src/components/RecentActivity';
+import UserProfile from 'src/components/User';
 
 function ManagementActivity() {
-  const { data: accountData } = useAccount()
-  const { data: ensNameData } = useEnsName({ address: accountData?.address })
-  
-  const user = {
-    savedCards: 7,
-    name: ensNameData ? accountData?.address : null,
-    coverImg: '/static/images/placeholders/covers/5.jpg',
-    avatar: '/static/images/avatars/4.jpg',
-    description:
-      "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage",
-    jobtitle: 'Web Developer',
-    location: 'Barcelona, Spain',
-    followers: '465'
-  };
+  const user = UserProfile();
 
   console.log("accountdata", user.name)
 
   return (
     <>
       <Helmet>
-        <title>Activity Details - Management</title>
+        <title>Activity Details - Member</title>
       </Helmet>
       <Container sx={{ mt: 3 }} maxWidth="lg">
         <Grid
@@ -45,11 +28,9 @@ function ManagementActivity() {
           <Grid item xs={12} md={12}>
             <ProfileCover user={user} />
           </Grid>          
-          <Grid item xs={12} md={8}>
-            <Feed />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <PopularTags />
+
+          <Grid item xs={12} md={12}>
+            <RecentActivity/>
           </Grid>
         </Grid>
       </Container>
