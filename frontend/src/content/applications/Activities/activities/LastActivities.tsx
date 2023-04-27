@@ -1,3 +1,4 @@
+import {useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -12,6 +13,13 @@ import {
   styled
 } from '@mui/material';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { NftOrder } from 'src/models/nft_orders';
+import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { useContract, useSigner } from 'wagmi';
+import { useIpfsUploader } from "src/utils/IpfsUtils"
+import NftERC721Artifact from "src/contracts/NftERC721.json";
+import contractAddress from "src/contracts/contract-nfterc721-address.json";
+
 
 const AvatarWrapper = styled(Avatar)(
   ({ theme }) => `
@@ -74,24 +82,124 @@ const CardAddAction = styled(Card)(
 `
 );
 
-function LastActivities() {
+function stringToColor(string: string) {
+  let hash = 0;
+  let i;
+
+  /* eslint-disable no-bitwise */
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  let color = '#';
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.substr(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+function stringAvatar(name: string) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name)
+    },
+    children: `${name}`
+  };
+}
+
+function LastActivities() {  
+  const { data: signer, isError, isLoading } = useSigner();
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }                                            
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };                                          
+  const contract = useContract(contractConfig);
+  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
+  const { downloadJsonToPinata } = useIpfsUploader();
+  const [activitiesData, setActivitiesData] = useState<NftOrder[]>([]);
+  const [activitiesDataLoaded, setActivitiesDataLoaded] = useState<boolean>(false);
+  const shortenedAddressOrName = shortenAddressOrEnsName(); 
 
   const handleButtonCreateActivity = () => {
     window.location.href = "/dapp/activity-settings";
   };
+
+  const loadContractInfo = async () : Promise<NftOrder[]> => {
+    //busca o tokenUri do ultimo nft mintado
+    console.log("contract", contract);
+    const nftQuantity = await contract.idCounter();  
+    let lastsUriMints = [];
+    let max = nftQuantity > 3 ? 3 : nftQuantity
+    for(let i = max ; i >= 1; i--) {                
+      lastsUriMints.push(await contract.tokenURI(nftQuantity.toNumber()-i))          
+    }
+    console.log("lastsUriMints", lastsUriMints);  
+    let nfts: NftOrder[] = [];
+    lastsUriMints.forEach(tokenUri => {
+      console.log("tokenUri", tokenUri);
+      const metadata = downloadJsonToPinata(tokenUri).then(result => {
+        console.log("result", result);        
+        return result;        
+      });
+      console.log("metadata", metadata);
+      metadata.then(resultMetadata => {
+        const activityJson = JSON.parse(resultMetadata);
+        let rewards:string = ""
+        activityJson.attributes.forEach(attr => {
+          if (attr.trait_type == 'Rewards')
+            rewards = attr.value;
+        })
+        const nftOrder: NftOrder = 
+          {
+            name: activityJson.name,
+            description: activityJson.description,
+            image: activityJson.image,
+            status: 'Concluido',
+            attributes: 'Comunidade',
+            creatorActivity: 'Douglas',
+            tag: 'tag#3',
+            dateLimit: 'Dezembro',
+            bounty: parseInt(rewards),
+            difficulty: 'Avancado',
+          };
+        nfts.push(nftOrder);            
+      })            
+    });    
+    console.log("nfts", nfts);         
+    setActivitiesDataLoaded(true);
+    return nfts;    
+  }
+
+  useEffect(() => {
+    //console.log("executed on changed setActivitiesData!");
+    console.log("LastActivities => executed only once!");
+    loadContractInfo().then(loadResult => {
+      console.log("loadResult", loadResult);
+      if (!activitiesDataLoaded)
+        setActivitiesData(loadResult);
+        console.log("activitiesData", activitiesData);    
+    });    
+  });
 
   return (
     <>
       <Box
         display="flex"
         alignItems="center"
-        justifyContent="space-between"
         sx={{
           pb: 3
         }}
       >
         <Typography variant="h3">Recent Activities</Typography>
-        <Button
+        <Button sx={{ ml: 2 }}
           size="small"
           variant="outlined"
           onClick={handleButtonCreateActivity}
@@ -101,108 +209,6 @@ function LastActivities() {
         </Button>
       </Box>
       <Grid container spacing={3}> 
-        <Grid xs={12} sm={6} md={3} item>
-          <Card
-            sx={{
-              px: 1
-            }}
-          >
-            <CardContent>
-              <AvatarWrapper>
-                <img
-                  alt="BTC"
-                  src="/static/images/avatars/1.jpg"
-                />
-              </AvatarWrapper>
-              <Typography variant="h5" noWrap>
-                Atividade #2
-              </Typography>
-              <Typography variant="subtitle1" noWrap>
-                Criar quadro de Horários
-              </Typography>
-              <Box
-                sx={{
-                  pt: 3
-                }}
-              >
-                <Typography variant="h3" gutterBottom noWrap>
-                  Bounty $2
-                </Typography>
-                <Typography variant="subtitle2" noWrap>
-                  Em Andamento
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid xs={12} sm={6} md={3} item>
-          <Card
-            sx={{
-              px: 1
-            }}
-          >
-            <CardContent>
-              <AvatarWrapper>
-                <img
-                  alt="Avatar2"
-                  src="/static/images/avatars/2.jpg"
-                />
-              </AvatarWrapper>
-              <Typography variant="h5" noWrap>
-                Atividade #3
-              </Typography>
-              <Typography variant="subtitle1" noWrap>
-                Criar Design NFTs
-              </Typography>
-              <Box
-                sx={{
-                  pt: 3
-                }}
-              >
-                <Typography variant="h3" gutterBottom noWrap>
-                  Bounty $5
-                </Typography>
-                <Typography variant="subtitle2" noWrap>
-                  Em Andamento
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid xs={12} sm={6} md={3} item>
-          <Card
-            sx={{
-              px: 1
-            }}
-          >
-            <CardContent>
-              <AvatarWrapper>
-                <img
-                  alt="Avatar3"
-                  src="/static/images/avatars/3.jpg"
-                />
-              </AvatarWrapper>
-              <Typography variant="h5" noWrap>
-                Atividade #5
-              </Typography>
-              <Typography variant="subtitle1" noWrap>
-                Criar Design Curso
-              </Typography>
-              <Box
-                sx={{
-                  pt: 3
-                }}
-              >
-                <Typography variant="h3" gutterBottom noWrap>
-                  Bounty $7
-                </Typography>
-                <Typography variant="subtitle2" noWrap>
-                  Em Andamento
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
         <Grid xs={12} sm={6} md={3} item>
           <Tooltip arrow title="Click to add a new activity">
             <CardAddAction onClick={handleButtonCreateActivity}>
@@ -220,6 +226,37 @@ function LastActivities() {
             </CardAddAction>
           </Tooltip>
         </Grid>
+        {activitiesData && activitiesData.map((nftData, index) => (
+          <Grid xs={12} sm={6} md={3} item key={index}>
+            <Card
+              sx={{
+                px: 1
+              }}
+            >
+              <CardContent>
+                <Avatar variant="rounded" {...stringAvatar(shortenedAddressOrName)} />
+                <Typography variant="h5" noWrap>
+                  {nftData.name}
+                </Typography>
+                <Typography variant="subtitle1" noWrap>
+                {nftData.description}
+                </Typography>
+                <Box
+                  sx={{
+                    pt: 3
+                  }}
+                >
+                  <Typography variant="h3" gutterBottom noWrap>
+                    Bounty ${nftData.bounty}
+                  </Typography>
+                  <Typography variant="subtitle2" noWrap>
+                    {nftData.status}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}              
       </Grid>
     </>
   );

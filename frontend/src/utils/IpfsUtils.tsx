@@ -91,7 +91,7 @@ export function useIpfsUploader(){
     try{
       var config = {
         method: 'get',
-        url: tokenUri,
+        url: "https://api.allorigins.win/raw?url="+tokenUri,
         headers: { 
           'Content-Type': 'application/json'
         }

@@ -11,10 +11,13 @@ contract NftERC721 is ERC721, ERC721URIStorage {
 
     address public owner;
     mapping (address => bool) public whiteList;
-
-    constructor(string memory _collectionName, string memory _token) ERC721(_collectionName, _token) {
+    mapping (uint256 => string) public lastsMintsTokenUri;
+    
+    constructor(string memory _collectionName, string memory _token) ERC721(_collectionName, _token) payable {
 
     }
+    
+    event NftMinted(bool isMinted);
 
     //NFT FUNCTIONS
     function safeMint(address to, string memory ipfsUri) public {
@@ -22,6 +25,9 @@ contract NftERC721 is ERC721, ERC721URIStorage {
         tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, ipfsUri);
+        
+        // EVENT
+        emit NftMinted(true);
     }
 
     // helper function to compare strings
@@ -54,10 +60,17 @@ contract NftERC721 is ERC721, ERC721URIStorage {
 
     function lastMinted() public view returns (string memory) {
         uint256 tokenId = tokenIdCounter.current();
+        if (tokenId == 0)
+            return "";
         if (tokenId > 0)
             return tokenURI(tokenId - 1);
         else 
             return tokenURI(tokenId);
-    }    
+    }   
+
+    function idCounter() public view returns (uint256) {
+        return tokenIdCounter.current();
+    }   
+
 }
 
