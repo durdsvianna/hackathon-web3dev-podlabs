@@ -36,12 +36,10 @@ export function useErc721Contract() {
       signerOrProvider: signer,
     };
 
-    function getBalance(length = 5): string {
+    function getBalance(to): string {
       const [balance, setBalance] = useState<string>(" ");
-      const { data: accountData } = useAccount();
-      const { data: ensNameData } = useEnsName({ address: accountData?.address });
       const contract = useContract(contractConfig);
-      let balancePromise = contract.balanceOf(accountData.address);
+      let balancePromise = contract.balanceOf(to);
       console.log("balancePromise", balancePromise);
       balancePromise.then(result => {
           console.log("setBalance", ethers.utils.formatEther(result));

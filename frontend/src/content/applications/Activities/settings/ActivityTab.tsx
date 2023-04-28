@@ -2,6 +2,9 @@ import { useState, forwardRef, useCallback } from 'react';
 import {useDropzone} from 'react-dropzone';
 import bgimage from 'src/images/image.svg';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 import {
   Box,
   TextField,
@@ -114,9 +117,17 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const schema = yup.object({
+  title: yup.string().required('Campo obrigatório.'),
+  description: yup.string().required('Campo obrigatório.'),
+}).required();
+
 function ActivityTab() {
   const unnamed = "Unnamed";
-  const [openSucess, setOpenSucess] = useState(false);
+  const { register, handleSubmit, formState:{ errors } } = useForm({
+    resolver: yupResolver(schema)
+  });
+  const [openInformartion, setOpenInformartion] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [valueReward, setValueReward] = useState<string>('0');
   const [activityStatus, setActivityStatus] = useState('');
@@ -156,7 +167,6 @@ function ActivityTab() {
   };
 
   const contract = useContract(contractConfig);
-  
   const mintNft = async (tokenUri, to) => {
     //realiza o mint da NFT          
     const mintResult = contract.safeMint(to, tokenUri);
@@ -165,7 +175,7 @@ function ActivityTab() {
     return mintResult ? "NFT minted with success!" : "Error! NFT NOT minted!";
   }  
 
-  const handleSubmit = async(event: { preventDefault: () => void; }) => {
+  const onSubmit = async(event: { preventDefault: () => void; }) => {
     nft.attributes = [...nft.attributes,{
       trait_type: 'Expire Date',
       value: expireDate
@@ -193,18 +203,18 @@ function ActivityTab() {
       const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(nft), "teste.json");        
       setUploadJsonResult(ipfsJsonResult); 
       mintNft("https://gateway.pinata.cloud/ipfs/" + ipfsJsonResult.IpfsHash, "0x553C28796D99B154Da50F3BFA8681f1bdfb8fa9e");
-      setOpenSucess(true);
+      setOpenInformartion(true);
     } catch (error) {
       console.log("Erro: ", error);
     }
   };
 
-  const handleCloseSnackSuccess = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleCloseSnackInformation = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
 
-    setOpenSucess(false);
+    setOpenInformartion(false);
   };
 
   const handleCloseSnackError = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -253,7 +263,6 @@ function ActivityTab() {
   };
 
   const onDrop = useCallback(async(acceptedFiles) => {
-      console.log("bgimage", bgimage)
       const file = acceptedFiles[0]
       let reader = new FileReader()
       setImageFile(file);        
@@ -276,19 +285,26 @@ function ActivityTab() {
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-      <Snackbar open={openSucess} autoHideDuration={6000} onClose={handleCloseSnackSuccess}>
-        <Alert onClose={handleCloseSnackSuccess} severity="success" sx={{ width: '100%' }}>
-          Activity minted with success!
+      <Snackbar open={openInformartion} autoHideDuration={6000} onClose={handleCloseSnackInformation}>
+        <Alert onClose={handleCloseSnackInformation} severity="info" sx={{ width: '100%' }}>
+          Mint process initiated!
         </Alert>
       </Snackbar>
       <Snackbar open={openError} autoHideDuration={6000} onClose={handleCloseSnackError}>
-        <Alert onClose={handleCloseSnackError} severity="success" sx={{ width: '100%' }}>
-          Activity minted with success!
+        <Alert onClose={handleCloseSnackError} severity="error" sx={{ width: '100%' }}>
+          Activity not minted! Try again!
         </Alert>
       </Snackbar>
       <Card>
         <CardHeader title="Create activity and mint your NFT." />
-        <div  {...getRootProps({className :'md:h-52 sm:h-44 h-auto bg-light-grey border-2 border-light-blue border-dashed rounded-md'})}>
+        <Box
+            component="form"
+            sx={{
+              '& .MuiTextField-root': { m: 1 }
+            }}
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <div  {...getRootProps({className :'md:h-52 sm:h-44 h-auto bg-light-grey border-2 border-light-blue border-dashed rounded-md'})}>
           <CardCover >
             <CardMedia
               sx={{ minHeight: 280 }}
@@ -325,24 +341,21 @@ function ActivityTab() {
           }}
         >
           <Box
-            component="form"
             sx={{
               '& .MuiTextField-root': { m: 1 }
-            }}
-            autoComplete="off"
+            }}            
           >
             <div>
-              <TextField fullWidth 
-                required
+              <TextField fullWidth {...register("title")}                
                 id="outlined-required"
                 label="Title"
                 onChange={handleChangeTitle}
                 placeholder="Title"
               />
+              <p>{errors.title?.message}</p>
             </div>
             <div>
-              <TextField fullWidth 
-                required
+              <TextField fullWidth {...register("description")}                
                 id="outlined-required"
                 label="Description"
                 onChange={handleChangeDescription}
@@ -351,6 +364,7 @@ function ActivityTab() {
                 rows="6"
                 maxRows="18"
               />
+              <p>{errors.description?.message}</p>
             </div>                   
             <div>        
               <DatePicker
@@ -367,7 +381,6 @@ function ActivityTab() {
                 SelectProps={{
                   native: true
                 }}
-                helperText="Please select your currency"
               >
               {activityInitialStatus.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -385,7 +398,6 @@ function ActivityTab() {
                 SelectProps={{
                   native: true
                 }}
-                helperText="Please select the dificulty of ativity."
               >
               {activityDificulties.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -400,15 +412,16 @@ function ActivityTab() {
                 disabled
                 onBeforeInput={handleLoadCreator}
                 defaultValue={nameOrAddress}
-              />
-              <TextField
-                label="Reward ($)"
-                value={valueReward}
-                onChange={handleChangeReward}
-                InputProps={{
-                  inputComponent: NumericFormatCustom as any,
-                }}
-              />
+              />  
+              <TextField {...register("valueReward")}
+                  label="Reward ($)"
+                  value={valueReward}
+                  onChange={handleChangeReward}
+                  InputProps={{
+                    inputComponent: NumericFormatCustom as any,
+                  }}
+                />
+              <p>{errors.valueReward?.message}</p>            
             </div>          
           </Box>
         </CardActionsWrapper>
@@ -423,11 +436,12 @@ function ActivityTab() {
             
           </Box>
           <Box sx={{ mt: { xs: 2, md: 0 } }}>
-            <Button onClick={handleSubmit} variant="contained">
+            <Button type="submit" variant="contained">
               Create Activity
             </Button>
           </Box>
         </CardActionsWrapper>
+        </Box>        
       </Card>
     </Stack>    
   );
