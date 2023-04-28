@@ -95,7 +95,7 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '/',
-        element: <Dapp />
+        element: <Overview />
       },
       {
         path: 'dapp',

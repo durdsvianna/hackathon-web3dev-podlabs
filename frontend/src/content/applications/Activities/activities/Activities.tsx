@@ -1,21 +1,13 @@
-import { useEffect, useState } from 'react';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { Box, Grid } from '@mui/material';
-
+import { useState, useEffect } from 'react';
+import { Card } from '@mui/material';
+import { NftOrder } from 'src/models/nft_order';
+import ActivitiesTable from './ActivitiesTable';
 import { useContract, useSigner } from 'wagmi';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 
-import { NftOrder } from 'src/models/nft_order';
-
-
-export default function MediaNft() {
+function Activities() {
   const { data: signer, isError, isLoading } = useSigner();  
   const contractReadConfig = {
     addressOrName: contractAddress.NftERC721,
@@ -74,7 +66,6 @@ export default function MediaNft() {
         });
       }      
     });    
-
     console.log("nfts", nfts);         
     setActivitiesDataLoaded(true);
     return nfts;    
@@ -87,42 +78,15 @@ export default function MediaNft() {
       console.log("loadResult", loadResult);
       if (!activitiesDataLoaded)
         setActivitiesData(loadResult);
-      console.log("activitiesData", activitiesData);    
+        console.log("activitiesData", activitiesData);    
     });    
   });
 
   return (
-    <>
-    <Box 
-      sx={{
-        marginTop: 4,
-      }}>
-      <Grid container spacing={2}>
-        {activitiesData.map((nftData, index) => (
-          <Grid item xs={12} sm={6} md={6} lg={4} key={index}>
-            <Card sx={{ maxWidth: 345 }}>
-              <CardMedia
-                sx={{ height: 140 }}
-                image={nftData.image}
-                title="Web3Dev Blockchain"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {nftData.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {nftData.description}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small">Share</Button>
-                <Button size="small">Learn More</Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-    </>
+    <Card>
+      <ActivitiesTable nfts={activitiesData} />
+    </Card>
   );
 }
+
+export default Activities;

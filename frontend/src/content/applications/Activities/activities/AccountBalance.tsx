@@ -27,7 +27,7 @@ import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import { useIpfsUploader } from "src/utils/IpfsUtils"
-import { NftOrder } from 'src/models/nft_orders';
+import { NftOrder } from 'src/models/nft_order';
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
       background-color: ${theme.colors.success.main};
@@ -65,6 +65,7 @@ const ListItemAvatarWrapper = styled(ListItemAvatar)(
 );
 
 const nftDefault : NftOrder = {
+  tokenId: 0,
   name: 'nft-name',
   description: 'nft-description',
   image: '/static/images/nfts/nft-blockchain-web3dev.png',
@@ -95,32 +96,43 @@ const AccountBalance = () => {
   
   const loadContractInfo = async ()  => {
     console.log("contract in AccountBalance =>", contract);
-    //busca o tokenUri do ultimo nft mintado            
-    const tokenUriResult = await contract.lastMinted();      
-    
-    const metadata = downloadJsonToPinata(tokenUriResult).then(result => {        
-        return result;        
-      });
-    
-    metadata.then(resultMetadata => {
-      const activityJson = JSON.parse(resultMetadata);
-      const nftOrder: NftOrder = 
-        {
-          name: activityJson.name,
-          description: activityJson.description,
-          image: activityJson.image,
-          status: 'Concluido',
-          attributes: 'Comunidade',
-          creatorActivity: 'Douglas',
-          tag: 'tag#3',
-          dateLimit: 'Dezembro',
-          bounty: 4,
-          difficulty: 'Avancado',
-        }; 
-      console.log("nftOrder", nftOrder);
-      if (activityData.name === 'nft-name' )
-        setActivityData(nftOrder);
-    })
+    //busca o tokenUri do ultimo nft mintado
+    const nftQuantity = await contract.idCounter();  
+    let lastsUriMints: [{tokenId: number; tokenUri: string }] = [{tokenId: 0, tokenUri: ''}];
+    const uri = await contract.tokenURI(nftQuantity.toNumber()-1);
+      lastsUriMints.push({
+        tokenId: nftQuantity.toNumber(), 
+        tokenUri: uri
+      })              
+    console.log("lastsUriMints", lastsUriMints);   
+    lastsUriMints.forEach(token => {
+      if(token.tokenId) {
+        const metadata = downloadJsonToPinata(token.tokenUri).then(result => {        
+          return result;        
+        });
+      
+        metadata.then(resultMetadata => {
+          const activityJson = JSON.parse(resultMetadata);
+          const nftOrder: NftOrder = 
+            {
+              tokenId: lastsUriMints[0].tokenId,
+              name: activityJson.name,
+              description: activityJson.description,
+              image: activityJson.image,
+              status: 'Concluido',
+              attributes: 'Comunidade',
+              creatorActivity: 'Douglas',
+              tag: 'tag#3',
+              dateLimit: 'Dezembro',
+              bounty: 4,
+              difficulty: 'Avancado',
+            }; 
+          console.log("nftOrder", nftOrder);
+          if (activityData.name === 'nft-name' )
+            setActivityData(nftOrder);
+        })
+      }      
+    });                  
 
     let balancePromise = contract.balanceOf(accountData.address);    
     balancePromise.then(result => {        

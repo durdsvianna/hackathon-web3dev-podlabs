@@ -5,7 +5,7 @@ import { Grid, Container } from '@mui/material';
 import Footer from 'src/components/Footer';
 
 import AccountBalance from './AccountBalance';
-import RecentOrders from './RecentOrders';
+import Activities from './Activities';
 import LastActivities from './LastActivities';
 
 function ApplicationsTransactions() {
@@ -32,7 +32,7 @@ function ApplicationsTransactions() {
             <LastActivities />
           </Grid>
           <Grid item xs={12}>            
-            <RecentOrders />
+            <Activities />
           </Grid>
         </Grid>
       </Container>

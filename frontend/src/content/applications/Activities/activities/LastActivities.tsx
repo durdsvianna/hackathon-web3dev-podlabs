@@ -13,7 +13,7 @@ import {
   styled
 } from '@mui/material';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import { NftOrder } from 'src/models/nft_orders';
+import { NftOrder } from 'src/models/nft_order';
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 import { useContract, useSigner } from 'wagmi';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
@@ -136,22 +136,24 @@ function LastActivities() {
     //busca o tokenUri do ultimo nft mintado
     console.log("contract", contract);
     const nftQuantity = await contract.idCounter();  
-    let lastsUriMints = [];
+    let lastsUriMints: [{tokenId: number; tokenUri: string }] = [{tokenId: 0, tokenUri: ''}];
     let max = nftQuantity > 3 ? 3 : nftQuantity
-    for(let i = max ; i >= 1; i--) {                
-      lastsUriMints.push(await contract.tokenURI(nftQuantity.toNumber()-i))          
+    for(let i = max ; i >= 1; i--) {             
+      const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
+      lastsUriMints.push({
+        tokenId: nftQuantity.toNumber()-1, 
+        tokenUri: uri
+      })          
     }
+    
     console.log("lastsUriMints", lastsUriMints);  
     let nfts: NftOrder[] = [];
-    lastsUriMints.forEach(tokenUri => {
-      console.log("tokenUri", tokenUri);
-      const metadata = downloadJsonToPinata(tokenUri).then(result => {
+    lastsUriMints.forEach(token => {
+      if (token.tokenId > 0){
+        console.log("token.tokenUri", token.tokenUri);
+        const metadata = downloadJsonToPinata(token.tokenUri).then(result => {
         console.log("result", result);        
-        return result;        
-      });
-      console.log("metadata", metadata);
-      metadata.then(resultMetadata => {
-        const activityJson = JSON.parse(resultMetadata);
+        const activityJson = JSON.parse(result);
         let rewards:string = ""
         activityJson.attributes.forEach(attr => {
           if (attr.trait_type == 'Rewards')
@@ -159,6 +161,7 @@ function LastActivities() {
         })
         const nftOrder: NftOrder = 
           {
+            tokenId: token.tokenId,
             name: activityJson.name,
             description: activityJson.description,
             image: activityJson.image,
@@ -170,8 +173,9 @@ function LastActivities() {
             bounty: parseInt(rewards),
             difficulty: 'Avancado',
           };
-        nfts.push(nftOrder);            
-      })            
+        nfts.push(nftOrder);   
+      });
+      }      
     });    
     console.log("nfts", nfts);         
     setActivitiesDataLoaded(true);

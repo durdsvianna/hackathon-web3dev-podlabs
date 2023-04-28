@@ -26,21 +26,21 @@ import {
 } from '@mui/material';
 
 import Label from 'src/components/Label';
-import { CryptoOrder, CryptoOrderStatus } from 'src/models/crypto_order';
+import { NftOrder, NftStatus } from 'src/models/nft_order';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import BulkActions from './BulkActions';
 
 interface RecentOrdersTableProps {
   className?: string;
-  cryptoOrders: CryptoOrder[];
+  nfts: NftOrder[];
 }
 
 interface Filters {
-  status?: CryptoOrderStatus;
+  status?: NftStatus;
 }
 
-const getStatusLabel = (cryptoOrderStatus: CryptoOrderStatus): JSX.Element => {
+const getStatusLabel = (nftStatus: NftStatus): JSX.Element => {
   const map = {
     failed: {
       text: 'Burned',
@@ -56,19 +56,19 @@ const getStatusLabel = (cryptoOrderStatus: CryptoOrderStatus): JSX.Element => {
     }
   };
 
-  const { text, color }: any = map[cryptoOrderStatus];
+  const { text, color }: any = map[nftStatus];
 
   return <Label color={color}>{text}</Label>;
 };
 
 const applyFilters = (
-  cryptoOrders: CryptoOrder[],
+  nfts: NftOrder[],
   filters: Filters
-): CryptoOrder[] => {
-  return cryptoOrders.filter((cryptoOrder) => {
+): NftOrder[] => {
+  return nfts.filter((nft) => {
     let matches = true;
 
-    if (filters.status && cryptoOrder.status !== filters.status) {
+    if (filters.status && nft.status !== filters.status) {
       matches = false;
     }
 
@@ -77,15 +77,15 @@ const applyFilters = (
 };
 
 const applyPagination = (
-  cryptoOrders: CryptoOrder[],
+  nfts: NftOrder[],
   page: number,
   limit: number
-): CryptoOrder[] => {
-  return cryptoOrders.slice(page * limit, page * limit + limit);
+): NftOrder[] => {
+  return nfts.slice(page * limit, page * limit + limit);
 };
 
-const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
-  const [selectedCryptoOrders, setSelectedCryptoOrders] = useState<string[]>(
+const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
+  const [selectedCryptoOrders, setSelectedCryptoOrders] = useState<number[]>(
     []
   );
   const selectedBulkActions = selectedCryptoOrders.length > 0;
@@ -132,14 +132,14 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
   ): void => {
     setSelectedCryptoOrders(
       event.target.checked
-        ? cryptoOrders.map((cryptoOrder) => cryptoOrder.id)
+        ? nfts.map((nft) => nft.tokenId)
         : []
     );
   };
 
   const handleSelectOneCryptoOrder = (
     event: ChangeEvent<HTMLInputElement>,
-    cryptoOrderId: string
+    cryptoOrderId: number
   ): void => {
     if (!selectedCryptoOrders.includes(cryptoOrderId)) {
       setSelectedCryptoOrders((prevSelected) => [
@@ -161,7 +161,7 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
     setLimit(parseInt(event.target.value));
   };
 
-  const filteredCryptoOrders = applyFilters(cryptoOrders, filters);
+  const filteredCryptoOrders = applyFilters(nfts, filters);
   const paginatedCryptoOrders = applyPagination(
     filteredCryptoOrders,
     page,
@@ -169,9 +169,9 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
   );
   const selectedSomeCryptoOrders =
     selectedCryptoOrders.length > 0 &&
-    selectedCryptoOrders.length < cryptoOrders.length;
+    selectedCryptoOrders.length < nfts.length;
   const selectedAllCryptoOrders =
-    selectedCryptoOrders.length === cryptoOrders.length;
+    selectedCryptoOrders.length === nfts.length;
   const theme = useTheme();
 
   return (
@@ -227,14 +227,14 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedCryptoOrders.map((cryptoOrder) => {
+            {paginatedCryptoOrders.map((nft) => {
               const isCryptoOrderSelected = selectedCryptoOrders.includes(
-                cryptoOrder.id
+                nft.tokenId
               );
               return (
                 <TableRow
                   hover
-                  key={cryptoOrder.id}
+                  key={nft.tokenId}
                   selected={isCryptoOrderSelected}
                 >
                   <TableCell padding="checkbox">
@@ -242,7 +242,7 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                       color="primary"
                       checked={isCryptoOrderSelected}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                        handleSelectOneCryptoOrder(event, cryptoOrder.id)
+                        handleSelectOneCryptoOrder(event, nft.tokenId)
                       }
                       value={isCryptoOrderSelected}
                     />
@@ -255,10 +255,12 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                       gutterBottom
                       noWrap
                     >
-                      {cryptoOrder.orderDetails}
+                      {nft.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" noWrap>
-                      {format(cryptoOrder.orderDate, 'MMMM dd yyyy')}
+                      {
+                      //format(nft.orderDate, 'MMMM dd yyyy')
+                      }
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -269,7 +271,9 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                       gutterBottom
                       noWrap
                     >
-                      {cryptoOrder.orderID}
+                      {/* {
+                      nft.orderID
+                      } */}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -280,10 +284,7 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                       gutterBottom
                       noWrap
                     >
-                      {cryptoOrder.sourceName}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" noWrap>
-                      {cryptoOrder.sourceDesc}
+                      {nft.creatorActivity}
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
@@ -294,17 +295,13 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
                       gutterBottom
                       noWrap
                     >
-                      {cryptoOrder.amountCrypto}
-                      {cryptoOrder.cryptoCurrency}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" noWrap>
-                      {numeral(cryptoOrder.amount).format(
-                        `${cryptoOrder.currency}0,0.00`
-                      )}
-                    </Typography>
+                      {numeral(nft.bounty).format(
+                        `${"$"}0,0.00`
+                      )}                      
+                    </Typography>                    
                   </TableCell>
                   <TableCell align="right">
-                    {getStatusLabel(cryptoOrder.status)}
+                    {/* {getStatusLabel(nft.status)} */}
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit Order" arrow>
@@ -355,12 +352,12 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ cryptoOrders }) => {
   );
 };
 
-RecentOrdersTable.propTypes = {
-  cryptoOrders: PropTypes.array.isRequired
+ActivitiesTable.propTypes = {
+  nfts: PropTypes.array.isRequired
 };
 
-RecentOrdersTable.defaultProps = {
-  cryptoOrders: []
+ActivitiesTable.defaultProps = {
+  nfts: []
 };
 
-export default RecentOrdersTable;
+export default ActivitiesTable;
