@@ -8,7 +8,12 @@ import AccountBalance from './AccountBalance';
 import Activities from './Activities';
 import LastActivities from './LastActivities';
 
+import { useErc721Contract } from "src/utils/Web3Erc721Utils"
+import SuspenseLoader from 'src/components/SuspenseLoader';
+
 function ApplicationsTransactions() {
+  const { data, loading, lastToken, balance } = useErc721Contract();
+
   return (
     <>
       <Helmet>
@@ -17,25 +22,29 @@ function ApplicationsTransactions() {
       <PageTitleWrapper>
         <PageHeader />
       </PageTitleWrapper>
-      <Container maxWidth="lg">
-        <Grid
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={3}
-        >
-          <Grid item xs={12}>
-            <AccountBalance />
+      {loading 
+      ? <SuspenseLoader />
+      : 
+        <Container maxWidth="lg">
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="stretch"
+            spacing={3}
+          >
+            <Grid item xs={12}>
+              <AccountBalance lastToken={lastToken} balance={balance}/>
+            </Grid>
+            <Grid item xs={12}>
+              <LastActivities data={data}/>
+            </Grid>
+            <Grid item xs={12}>            
+              <Activities data={data}/>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <LastActivities />
-          </Grid>
-          <Grid item xs={12}>            
-            <Activities />
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      }     
       <Footer />
     </>
   );

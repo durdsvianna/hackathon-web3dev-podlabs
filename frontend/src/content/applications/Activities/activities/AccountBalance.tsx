@@ -78,77 +78,9 @@ const nftDefault : NftOrder = {
   difficulty: 'Avancado',
 }
 
-const AccountBalance = () => {
-  const { data: signer, isError, isLoading } = useSigner();
-  const contractReadConfig = {
-    addressOrName: contractAddress.NftERC721,
-    contractInterface: NftERC721Artifact.abi,
-  }                                            
-  const contractConfig = {
-    ...contractReadConfig,
-    signerOrProvider: signer,
-  };                                          
-  const contract = useContract(contractConfig);
+const AccountBalance = ({ lastToken, balance }) => {
   const { data: accountData } = useAccount();
   const { downloadJsonToPinata } = useIpfsUploader();
-  const [activityData, setActivityData] = useState<NftOrder>(nftDefault);
-  const [balance, setBalance] = useState<string>(" ");
-  
-  const loadContractInfo = async ()  => {
-    console.log("contract in AccountBalance =>", contract);
-    //busca o tokenUri do ultimo nft mintado
-    const nftQuantity = await contract.idCounter();  
-    let lastsUriMints: [{tokenId: number; tokenUri: string }] = [{tokenId: 0, tokenUri: ''}];
-    const uri = await contract.tokenURI(nftQuantity.toNumber()-1);
-      lastsUriMints.push({
-        tokenId: nftQuantity.toNumber(), 
-        tokenUri: uri
-      })              
-    console.log("lastsUriMints", lastsUriMints);   
-    lastsUriMints.forEach(token => {
-      if(token.tokenId) {
-        const metadata = downloadJsonToPinata(token.tokenUri).then(result => {        
-          return result;        
-        });
-      
-        metadata.then(resultMetadata => {
-          const activityJson = JSON.parse(resultMetadata);
-          const nftOrder: NftOrder = 
-            {
-              tokenId: lastsUriMints[0].tokenId,
-              name: activityJson.name,
-              description: activityJson.description,
-              image: activityJson.image,
-              status: 'Concluido',
-              attributes: 'Comunidade',
-              creatorActivity: 'Douglas',
-              tag: 'tag#3',
-              dateLimit: 'Dezembro',
-              bounty: 4,
-              difficulty: 'Avancado',
-            }; 
-          console.log("nftOrder", nftOrder);
-          if (activityData.name === 'nft-name' )
-            setActivityData(nftOrder);
-        })
-      }      
-    });                  
-
-    let balancePromise = contract.balanceOf(accountData.address);    
-    balancePromise.then(result => {        
-        setBalance(ethers.utils.formatEther(result));
-      });
-  
-    console.log("balance", balance);
-    console.log("activityData", activityData);
-  }
-
-  useEffect(() => {
-    console.log("executed only once!");
-    //setActivityData(getActivityData());
-    
-    loadContractInfo();
-  } );
   
   return (
     <Card>
@@ -235,15 +167,15 @@ const AccountBalance = () => {
             <Card >
               <CardMedia
                 sx={{ height: 180 }}
-                image={activityData && activityData.image}
+                image={lastToken && lastToken.image}
                 title="Web3Dev Blockchain"
               />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
-                  {activityData && activityData.name}
+                  {lastToken && lastToken.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {activityData && activityData.description}
+                  {lastToken && lastToken.description}
                 </Typography>
               </CardContent>
               <CardActions>

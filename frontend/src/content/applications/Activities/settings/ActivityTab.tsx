@@ -202,7 +202,7 @@ function ActivityTab() {
     try {
       const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(nft), "teste.json");        
       setUploadJsonResult(ipfsJsonResult); 
-      mintNft("https://gateway.pinata.cloud/ipfs/" + ipfsJsonResult.IpfsHash, "0x553C28796D99B154Da50F3BFA8681f1bdfb8fa9e");
+      mintNft("https://gateway.pinata.cloud/ipfs/" + ipfsJsonResult.IpfsHash, process.env.REACT_APP_DAPP_WALLET);
       setOpenInformartion(true);
     } catch (error) {
       console.log("Erro: ", error);
