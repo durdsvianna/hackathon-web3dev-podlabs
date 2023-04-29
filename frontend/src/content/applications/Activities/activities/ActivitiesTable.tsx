@@ -31,7 +31,7 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import BulkActions from './BulkActions';
 
-interface RecentOrdersTableProps {
+interface RecenNftsTableProps {
   className?: string;
   nfts: NftOrder[];
 }
@@ -84,11 +84,11 @@ const applyPagination = (
   return nfts.slice(page * limit, page * limit + limit);
 };
 
-const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
-  const [selectedCryptoOrders, setSelectedCryptoOrders] = useState<number[]>(
+const ActivitiesTable: FC<RecenNftsTableProps> = ({ nfts }) => {
+  const [selectedNfts, setSelectedNfts] = useState<number[]>(
     []
   );
-  const selectedBulkActions = selectedCryptoOrders.length > 0;
+  const selectedBulkActions = selectedNfts.length > 0;
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
   const [filters, setFilters] = useState<Filters>({
@@ -127,28 +127,29 @@ const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
     }));
   };
 
-  const handleSelectAllCryptoOrders = (
+  const handleSelectAllNfts = (
     event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    setSelectedCryptoOrders(
+  ): void => {   
+    console.log("nfts array invertido",nfts);
+    setSelectedNfts(
       event.target.checked
         ? nfts.map((nft) => nft.tokenId)
         : []
     );
   };
 
-  const handleSelectOneCryptoOrder = (
+  const handleSelectOneNft = (
     event: ChangeEvent<HTMLInputElement>,
-    cryptoOrderId: number
+    tokenId: number
   ): void => {
-    if (!selectedCryptoOrders.includes(cryptoOrderId)) {
-      setSelectedCryptoOrders((prevSelected) => [
+    if (!selectedNfts.includes(tokenId)) {
+      setSelectedNfts((prevSelected) => [
         ...prevSelected,
-        cryptoOrderId
+        tokenId
       ]);
     } else {
-      setSelectedCryptoOrders((prevSelected) =>
-        prevSelected.filter((id) => id !== cryptoOrderId)
+      setSelectedNfts((prevSelected) =>
+        prevSelected.filter((id) => id !== tokenId)
       );
     }
   };
@@ -161,17 +162,14 @@ const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
     setLimit(parseInt(event.target.value));
   };
 
-  const filteredCryptoOrders = applyFilters(nfts, filters);
+  const filteredNfts = applyFilters(nfts, filters);
   const paginatedCryptoOrders = applyPagination(
-    filteredCryptoOrders,
+    filteredNfts,
     page,
     limit
   );
-  const selectedSomeCryptoOrders =
-    selectedCryptoOrders.length > 0 &&
-    selectedCryptoOrders.length < nfts.length;
-  const selectedAllCryptoOrders =
-    selectedCryptoOrders.length === nfts.length;
+  const selectedSomeNfts = selectedNfts.length > 0 && selectedNfts.length < nfts.length;
+  const selectedAllNfts = selectedNfts.length === nfts.length;
   const theme = useTheme();
 
   return (
@@ -213,9 +211,9 @@ const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
               <TableCell padding="checkbox">
                 <Checkbox
                   color="primary"
-                  checked={selectedAllCryptoOrders}
-                  indeterminate={selectedSomeCryptoOrders}
-                  onChange={handleSelectAllCryptoOrders}
+                  checked={selectedAllNfts}
+                  indeterminate={selectedSomeNfts}
+                  onChange={handleSelectAllNfts}
                 />
               </TableCell>
               <TableCell>Activity Title/Expire Date</TableCell>
@@ -228,23 +226,23 @@ const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
           </TableHead>
           <TableBody>
             {paginatedCryptoOrders.map((nft) => {
-              const isCryptoOrderSelected = selectedCryptoOrders.includes(
+              const isNftSelected = selectedNfts.includes(
                 nft.tokenId
               );
               return (
                 <TableRow
                   hover
                   key={nft.tokenId}
-                  selected={isCryptoOrderSelected}
+                  selected={isNftSelected}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
                       color="primary"
-                      checked={isCryptoOrderSelected}
+                      checked={isNftSelected}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                        handleSelectOneCryptoOrder(event, nft.tokenId)
+                        handleSelectOneNft(event, nft.tokenId)
                       }
-                      value={isCryptoOrderSelected}
+                      value={isNftSelected}
                     />
                   </TableCell>
                   <TableCell>
@@ -340,7 +338,7 @@ const ActivitiesTable: FC<RecentOrdersTableProps> = ({ nfts }) => {
       <Box p={2}>
         <TablePagination
           component="div"
-          count={filteredCryptoOrders.length}
+          count={handleSelectOneNft.length}
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleLimitChange}
           page={page}

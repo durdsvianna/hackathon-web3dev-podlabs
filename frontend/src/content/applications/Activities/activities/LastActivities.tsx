@@ -111,87 +111,19 @@ function stringAvatar(name: string) {
   };
 }
 
-function LastActivities() {  
-  const { data: signer, isError, isLoading } = useSigner();
-  const contractReadConfig = {
-    addressOrName: contractAddress.NftERC721,
-    contractInterface: NftERC721Artifact.abi,
-  }                                            
-  const contractConfig = {
-    ...contractReadConfig,
-    signerOrProvider: signer,
-  };                                          
-  const contract = useContract(contractConfig);
+function LastActivities({ data }) {  
   const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
-  const { downloadJsonToPinata } = useIpfsUploader();
-  const [activitiesData, setActivitiesData] = useState<NftOrder[]>([]);
-  const [activitiesDataLoaded, setActivitiesDataLoaded] = useState<boolean>(false);
   const shortenedAddressOrName = shortenAddressOrEnsName(); 
-
+  const [sliceData, setSliceData] = useState([]);
   const handleButtonCreateActivity = () => {
     window.location.href = "/dapp/activity-settings";
   };
 
-  const loadContractInfo = async () : Promise<NftOrder[]> => {
-    //busca o tokenUri do ultimo nft mintado
-    console.log("contract", contract);
-    const nftQuantity = await contract.idCounter();  
-    let lastsUriMints: [{tokenId: number; tokenUri: string }] = [{tokenId: 0, tokenUri: ''}];
-    let max = nftQuantity > 3 ? 3 : nftQuantity
-    for(let i = max ; i >= 1; i--) {             
-      const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
-      lastsUriMints.push({
-        tokenId: nftQuantity.toNumber()-1, 
-        tokenUri: uri
-      })          
-    }
-    
-    console.log("lastsUriMints", lastsUriMints);  
-    let nfts: NftOrder[] = [];
-    lastsUriMints.forEach(token => {
-      if (token.tokenId > 0){
-        console.log("token.tokenUri", token.tokenUri);
-        const metadata = downloadJsonToPinata(token.tokenUri).then(result => {
-        console.log("result", result);        
-        const activityJson = JSON.parse(result);
-        let rewards:string = ""
-        activityJson.attributes.forEach(attr => {
-          if (attr.trait_type == 'Rewards')
-            rewards = attr.value;
-        })
-        const nftOrder: NftOrder = 
-          {
-            tokenId: token.tokenId,
-            name: activityJson.name,
-            description: activityJson.description,
-            image: activityJson.image,
-            status: 'Concluido',
-            attributes: 'Comunidade',
-            creatorActivity: 'Douglas',
-            tag: 'tag#3',
-            dateLimit: 'Dezembro',
-            bounty: parseInt(rewards),
-            difficulty: 'Avancado',
-          };
-        nfts.push(nftOrder);   
-      });
-      }      
-    });    
-    console.log("nfts", nfts);         
-    setActivitiesDataLoaded(true);
-    return nfts;    
-  }
-
   useEffect(() => {
-    //console.log("executed on changed setActivitiesData!");
-    console.log("LastActivities => executed only once!");
-    loadContractInfo().then(loadResult => {
-      console.log("loadResult", loadResult);
-      if (!activitiesDataLoaded)
-        setActivitiesData(loadResult);
-        console.log("activitiesData", activitiesData);    
-    });    
-  });
+    console.log("slicing data..")
+    //const sData = [...data]; // spreading will return a new array
+    setSliceData(data.slice(0,3));
+  }, [])
 
   return (
     <>
@@ -230,7 +162,8 @@ function LastActivities() {
             </CardAddAction>
           </Tooltip>
         </Grid>
-        {activitiesData && activitiesData.map((nftData, index) => (
+        {        
+        sliceData.map((nftData, index) => (
           <Grid xs={12} sm={6} md={3} item key={index}>
             <Card
               sx={{
