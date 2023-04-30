@@ -79,7 +79,7 @@ export function useErc721Contract() {
 
 
     async function loadNfts () {
-      setLoading(true);
+      // setLoading(true);
       if (contract != null) {
         try {          
           const nftQuantity = await contract.idCounter();  
