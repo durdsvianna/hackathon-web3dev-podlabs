@@ -48,17 +48,17 @@ const { BigNumber } = require("ethers");
         it("Should assign the total supply of NFTs to the owner", async function () {
           const { hardhatNftERC721, owner } = await loadFixture(deployNftERC721Fixture);
           const ownerBalance = await hardhatNftERC721.balanceOf(owner.address);
-          expect(await hardhatFlowerNft.tokenIdCounter()).to.equal(ownerBalance);
+          expect(await hardhatNftERC721.tokenIdCounter()).to.equal(ownerBalance);
         });
       });
     
       describe("Transactions", function () {
-        it("Should transfer NFTs between accounts", async function () {
+        it("Should mint a NFT and transfer NFTs between accounts", async function () {
           const { hardhatNftERC721, owner, addr1 } = await loadFixture(deployNftERC721Fixture);
-          
+          const tokenUri = "{\"name\":\"Atividade 4\",\"description\":\"Descrição da atividade 4\",\"image\":\"https://gateway.pinata.cloud/ipfs/QmW78MP2JunDmEEnVuVcAzqamm2vZj8rfEq3FFXU6qo1qB\",\"external_url\":\"https://github.com/durdsvianna/\",\"background_color\":\"\",\"animation_url\":\"\",\"youtube_url\":\"\",\"attributes\":[{\"trait_type\":\"Status\",\"value\":\"2\"},{\"trait_type\":\"Dificulty\",\"value\":\"2\"},{\"trait_type\":\"Expire Date\",\"value\":\"2023-04-30T03:00:00.000Z\"},{\"trait_type\":\"Rewards\",\"value\":\"230\"}]}"
           //mint nfts
           console.log(`Mintando!`);
-          await hardhatNftERC721.safeMint(owner.address);
+          await hardhatNftERC721.safeMint(owner.address, JSON.parse(tokenUri));
           var counterTokenId = (await hardhatNftERC721.tokenIdCounter())-1;
           console.log(`Mintada! -> tokenId=`+counterTokenId);
 
@@ -71,7 +71,7 @@ const { BigNumber } = require("ethers");
           
           // Transfer 1 NFT from owner to addr1
           console.log(`Tranferindo a NFT!`);
-          await hardhatNftERC721.transferToken(owner.address, addr1.address, counterTokenId);
+          await hardhatNftERC721.transferFrom(owner.address, addr1.address, counterTokenId);
           console.log(`Transferida!`);  
           
           var balanceAddr1 = await hardhatNftERC721.balanceOf(await addr1.getAddress());
