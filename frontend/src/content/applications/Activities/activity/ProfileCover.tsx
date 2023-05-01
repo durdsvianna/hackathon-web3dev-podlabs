@@ -82,7 +82,7 @@ const ProfileCover = ({ user }) => {
         </Tooltip>
         <Box>
           <Typography variant="h3" component="h3" gutterBottom>
-            Tarefa de Atividades de {user.name}
+            Atividades de {user.name}
           </Typography>
           <Typography variant="subtitle2">
             Cheque suas atividades e as conclua

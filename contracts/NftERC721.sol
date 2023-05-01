@@ -3,88 +3,56 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract NftERC721 is ERC721, ERC721URIStorage {
-    event NftMinted(bool isMinted);
-    event RoleCreated(bytes32 roleId);
-    event RoleRemoved(bytes32 roleId);
-    event MemberAdded(address member, bytes32 roleId);
-    event MemberRemoved(address member, bytes32 roleId);
+contract NftERC721 is ERC721, ERC721URIStorage, AccessControl {
 
     using Counters for Counters.Counter;
+    Counters.Counter public tokenIdCounter;    
+
+    event NftMinted(bool isMinted);
+
     address public owner;
-    Counters.Counter public tokenIdCounter;
-    bytes32 public constant ROOT_ROLE = "ROOT";
+    
+    bytes32 public constant LEADER_ROLE = keccak256("LEADER_ROLE");
+    bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
 
-    struct Role {
-        bool exists;
-        bytes32 adminRoleId;
-        mapping (address => bool) members; 
-    }    
-        
-    mapping (bytes32 => Role) internal roles;    
-    
-    
-    constructor(string memory _collectionName, string memory _token) ERC721(_collectionName, _token) payable {
+    mapping(uint256 => string) private _tokenURIs;
+
+    constructor(string memory _collectionName, string memory _token, address admin ) ERC721(_collectionName, _token) payable {
         owner = msg.sender;
-        Role storage role = roles[0];
-        role.adminRoleId = ROOT_ROLE;
-        roles[role.adminRoleId].members[owner] = true;                
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
-    //ACCESS CONTROL FUNCTIONS
-    function roleExists(bytes32 _roleId) public view returns(bool) {
-        return (roles[_roleId].exists);
+    function grantRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(DEFAULT_ADMIN_ROLE)) {
+        _grantRole(role, account);
     }
 
-    function hasRole(address _member, bytes32 _roleId) public view returns(bool) {
-        require(roleExists(_roleId), "Role doesn't exist.");                        
-        return roles[_roleId].members[_member];
-    }    
-
-    // function addRole(bytes32 _roleId, bytes32 _adminRoleId) public {
-    //     // require(_roleId != NO_ROLE, "Reserved role id.");
-    //     require(!roleExists(_roleId), "Role already exists.");
-    //     require(roleExists(_adminRoleId), "Admin role doesn't exist.");
-    //     require(hasRole(msg.sender, _adminRoleId), "Not admin of role.");
-    //     Role storage role = {};
-    //     role.adminRoleId = ROOT_ROLE;
-    //     roles[_roleId] = Role({ exists: true, adminRoleId: _adminRoleId });
-    //     emit RoleCreated(_roleId);
-    // }
-
-    function addMember(address _member, bytes32 _roleId) public {
-        require(roleExists(_roleId), "Role doesn't exist.");
-        require(
-            hasRole(msg.sender, roles[_roleId].adminRoleId),
-            "User can't add members."
-        );
-        require(
-            !hasRole(_member, _roleId),
-            "Address is member of role."
-        );
-        roles[_roleId].members[_member] = true;
-        emit MemberAdded(_member, _roleId);
+    /**
+     * @dev Member get the rights to work on in the NFT Activity Bounty
+     *
+     * Requirements:
+     *
+     * - Should be a Member
+     * - Activity Should be avaiable
+     *
+     * Emits a {nftStatus} event.
+     */
+    function getActivity() public onlyRole(MEMBER_ROLE) {
+        // Requer que NFT mintado não tenha sido pego
+        // Se Nft não tiver sido mintado consigo entrar na whitelist para mintar o nft
     }
-
-    function removeMember(address _member, bytes32 _roleId) public {
-        require(roleExists(_roleId), "Role doesn't exist.");
-        require(
-            hasRole(msg.sender, roles[_roleId].adminRoleId),
-            "User can't remove members."
-        );
-        require(
-            hasRole(_member, _roleId),
-            "Address is not member of role."
-        );
-
-        delete roles[_roleId].members[_member];
-        emit MemberRemoved(_member, _roleId);
-    }
-
-
-    //NFT FUNCTIONS
-    function safeMint(address to, string memory ipfsUri) public {
+    
+    /**
+     * @dev See {ipfsUri}
+     * 
+     * Requirements:
+     *
+     * - Should be a `LEADER_ROLE`
+     *
+     * Emits a {NftMinted} event.
+     */
+    function safeMint(address to, string memory ipfsUri) public onlyRole(LEADER_ROLE) {
         uint256 tokenId = tokenIdCounter.current();
         tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -93,16 +61,28 @@ contract NftERC721 is ERC721, ERC721URIStorage {
         // EVENT
         emit NftMinted(true);
     }
+    
+    function CheckAddressMember() public view returns(bool) {
 
-    // helper function to compare strings
-    function compareStrings(string memory a, string memory b)
-        public
-        pure
-        returns (bool)
-    {
-        return (keccak256(abi.encodePacked((a))) ==
-            keccak256(abi.encodePacked((b))));
     }
+
+    // function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public onlyRole(LEADER_ROLE){
+    //     uint256 tokenId = tokenIdCounter.current();
+    //     tokenIdCounter.increment();
+    //     onERC721Received(to, from, tokenId, data);
+    //     _setTokenURI(tokenId, ipfsUri);
+
+    //     emit NftMinted(true);
+    // }
+
+    // safeTransferFrom(msg.sender, address(onERC721Received()), tokenId, "");
+
+    // function onERC721Received(
+    //     address operator,
+    //     address from,
+    //     uint256 tokenId,
+    //     bytes calldata data
+    // ) external returns (bytes4);
 
     // The following functions is an override required by Solidity.
     function _burn(uint256 tokenId)
@@ -135,6 +115,16 @@ contract NftERC721 is ERC721, ERC721URIStorage {
     function idCounter() public view returns (uint256) {
         return tokenIdCounter.current();
     }   
+
+    // The following functions is an override required by Solidity.
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
 }
 
