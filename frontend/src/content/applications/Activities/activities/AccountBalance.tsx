@@ -5,28 +5,15 @@ import {
   Box,
   Grid,
   Typography,
-  useTheme,
   styled,
   Avatar,
-  Divider,
   alpha,
-  ListItem,
-  ListItemText,
-  List,
   ListItemAvatar
 } from '@mui/material';
 import TrendingUp from '@mui/icons-material/TrendingUp';
-import Text from 'src/components/Text';
-import Chart from 'react-apexcharts';
-import type { ApexOptions } from 'apexcharts';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import { BigNumber, ethers } from 'ethers';
-import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 'wagmi';
-import NftERC721Artifact from "src/contracts/NftERC721.json";
-import contractAddress from "src/contracts/contract-nfterc721-address.json";
-import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { NftOrder } from 'src/models/nft_order';
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -65,6 +52,7 @@ const ListItemAvatarWrapper = styled(ListItemAvatar)(
 );
 
 const nftDefault : NftOrder = {
+  owner: '',
   tokenId: 0,
   name: 'nft-name',
   description: 'nft-description',
@@ -79,8 +67,6 @@ const nftDefault : NftOrder = {
 }
 
 const AccountBalance = ({ lastToken, balance }) => {
-  const { data: accountData } = useAccount();
-  const { downloadJsonToPinata } = useIpfsUploader();
   
   return (
     <Card>

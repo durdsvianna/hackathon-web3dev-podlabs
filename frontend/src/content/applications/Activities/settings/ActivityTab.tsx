@@ -190,7 +190,7 @@ function ActivityTab() {
     try {
       const ipfsImageResult = await uploadFileToPinata(imageFile);        
       setUploadFileResult(ipfsImageResult); 
-      nft.image = "https://gateway.pinata.cloud/ipfs/" + ipfsImageResult.IpfsHash;      
+      nft.image = ipfsImageResult.IpfsHash.toString();      
       console.log("ipfsImageResult", ipfsImageResult); 
       console.log("expireDate", expireDate);         
     } catch (error) {
@@ -200,9 +200,9 @@ function ActivityTab() {
 
     //guarda metadata no ipfs e realiza o mint
     try {
-      const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(nft), "teste.json");        
+      const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(nft), "tokenUri.json");        
       setUploadJsonResult(ipfsJsonResult); 
-      mintNft("https://gateway.pinata.cloud/ipfs/" + ipfsJsonResult.IpfsHash, process.env.REACT_APP_DAPP_WALLET);
+      mintNft(ipfsJsonResult.IpfsHash, process.env.REACT_APP_DAPP_CONTRACT);
       setOpenInformartion(true);
     } catch (error) {
       console.log("Erro: ", error);

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { NftOrder } from 'src/models/nft_order';
-import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
+import { useShortenAddressOrEnsNameOfOwner } from 'src/utils/Web3Utils';
 import { useContract, useSigner } from 'wagmi';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
 import NftERC721Artifact from "src/contracts/NftERC721.json";
@@ -112,17 +112,28 @@ function stringAvatar(name: string) {
 }
 
 function LastActivities({ data }) {  
-  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
-  const shortenedAddressOrName = shortenAddressOrEnsName(); 
+  const { shortenAddressOrEnsNameOfOwner } = useShortenAddressOrEnsNameOfOwner();
   const [sliceData, setSliceData] = useState([]);
+  
   const handleButtonCreateActivity = () => {
     window.location.href = "/dapp/activity-settings";
   };
 
+  const shortenOwnerOrENS = (owner :string) :string => {
+    return shortenAddressOrEnsNameOfOwner(owner);
+  }
+
   useEffect(() => {
     console.log("slicing data..")
-    //const sData = [...data]; // spreading will return a new array
-    setSliceData(data.slice(0,3));
+    const sData = [...data]; // spreading will return a new array
+    if (sData.length > 3){
+      setSliceData(sData.slice(0,3));
+      //console.log("sliceData", sliceData)
+    }      
+    else{
+      setSliceData(sData)
+      //console.log("data", sliceData)
+    }     
   }, [])
 
   return (
@@ -171,7 +182,7 @@ function LastActivities({ data }) {
               }}
             >
               <CardContent>
-                <Avatar variant="rounded" {...stringAvatar(shortenedAddressOrName)} />
+                <Avatar variant="rounded" {...stringAvatar(nftData.owner)} />
                 <Typography variant="h5" noWrap>
                   {nftData.name}
                 </Typography>
