@@ -62,27 +62,9 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl {
         emit NftMinted(true);
     }
     
-    function CheckAddressMember() public view returns(bool) {
-
+    function checkAddressMember(address account) public view returns(bool) {
+        return hasRole(MEMBER_ROLE, account);
     }
-
-    // function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public onlyRole(LEADER_ROLE){
-    //     uint256 tokenId = tokenIdCounter.current();
-    //     tokenIdCounter.increment();
-    //     onERC721Received(to, from, tokenId, data);
-    //     _setTokenURI(tokenId, ipfsUri);
-
-    //     emit NftMinted(true);
-    // }
-
-    // safeTransferFrom(msg.sender, address(onERC721Received()), tokenId, "");
-
-    // function onERC721Received(
-    //     address operator,
-    //     address from,
-    //     uint256 tokenId,
-    //     bytes calldata data
-    // ) external returns (bytes4);
 
     // The following functions is an override required by Solidity.
     function _burn(uint256 tokenId)

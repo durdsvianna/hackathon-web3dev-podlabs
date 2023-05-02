@@ -6,7 +6,7 @@ import { Grid, Container } from '@mui/material';
 import ProfileCover from './ProfileCover';
 
 import RecentActivity from 'src/components/RecentActivity';
-import UserProfile from 'src/components/User';
+import { UserProfile } from 'src/components/User';
 
 function ManagementUserProfile() {
   const user = UserProfile();
