@@ -1,11 +1,36 @@
 import { CeateNftMint, LastActivitiesNft } from 'src/components/Nfts';
-
+import {Card, CardActions, CardActionArea, CardContent, CardMedia, Button,Tooltip, Typography, Box, Grid, Avatar, styled, alpha} from '@mui/material';
+import { AddTwoTone } from '@mui/icons-material';
 function LastActivities({ data }) {  
+
+  const handleButtonCreateActivity = () => {
+    window.location.href = "/dapp/activity-settings";
+  };
 
   return (
     <> 
-    <CeateNftMint/>
-    <LastActivitiesNft data={data}/>
+    <Box
+      display="flex"
+      alignItems="center"
+      sx={{
+        pb: 3
+      }}
+      >
+      <Typography variant="h3">Recent Activities</Typography>
+      <Button sx={{ ml: 2 }}
+        size="small"
+        variant="outlined"
+        onClick={handleButtonCreateActivity}
+        startIcon={<AddTwoTone fontSize="small" />}
+      >
+        Create Activity
+      </Button>
+    </Box>
+    <Grid container spacing={3}>
+      <CeateNftMint/>
+      <LastActivitiesNft data={data}/>
+    </Grid>
+    
     </>
   );
 }
