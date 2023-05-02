@@ -17,6 +17,19 @@ export function useShortenAddressOrEnsName() {
     return { shortenAddressOrEnsName };
   }
 
+  export function useShortenAddressOrEnsNameOfOwner() {
+    function shortenAddressOrEnsNameOfOwner(owner, length = 5): string {
+      const { data: ensNameData } = useEnsName({ address: owner });
+
+      const prefix = owner.slice(0, length + 2);
+      const suffix = owner.slice(owner.length - length);
+  
+      return ensNameData ?? `${prefix}...${suffix}`;
+    }
+  
+    return { shortenAddressOrEnsNameOfOwner };
+  }
+
 export function useWalletAddress() {
     function walletAddress(length = 5): string {
       const { data: accountData } = useAccount();

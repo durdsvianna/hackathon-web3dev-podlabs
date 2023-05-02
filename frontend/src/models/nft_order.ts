@@ -3,6 +3,7 @@ export type NftStatus = 'Em andamento' | 'Concluido' | 'Pendente'
 export type NftDifficulty = 'Iniciante' | 'Intermediario' | 'Avancado'
 
 export interface NftOrder {
+  owner: string;
   tokenId : number;
   name: string;
   description: string;

@@ -130,7 +130,6 @@ const ActivitiesTable: FC<RecenNftsTableProps> = ({ nfts }) => {
   const handleSelectAllNfts = (
     event: ChangeEvent<HTMLInputElement>
   ): void => {   
-    console.log("nfts array invertido",nfts);
     setSelectedNfts(
       event.target.checked
         ? nfts.map((nft) => nft.tokenId)

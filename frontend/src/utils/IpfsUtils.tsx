@@ -84,16 +84,37 @@ export function useIpfsUploader(){
     return null;        
   }
 
-  async function downloadJsonToPinata(tokenUri: string): Promise<any> 
+  async function downloadJsonFromPinata(tokenUri: string): Promise<any> 
   {
     /* configure pinata auth settings */
     const JWT = process.env.REACT_APP_PINATA_AUTH;
     try{
       var config = {
         method: 'get',
-        url: "https://api.allorigins.win/raw?url="+tokenUri,
+        url: tokenUri,
         headers: { 
           'Content-Type': 'application/json'
+        }
+      };
+      
+      const res = await axios(config);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+    return null;        
+  }
+
+  async function downloadListFromPinata(): Promise<any> 
+  {
+    /* configure pinata auth settings */
+    const JWT = process.env.REACT_APP_PINATA_AUTH;
+    try{
+      var config = {
+        method: 'get',
+        url: 'https://api.pinata.cloud/data/pinList?status=pinned',
+        headers: { 
+          'Authorization': JWT
         }
       };
       
@@ -109,7 +130,8 @@ export function useIpfsUploader(){
     uploadToInfura, 
     uploadFileToPinata, 
     uploadJsonToPinata,
-    downloadJsonToPinata, 
+    downloadJsonFromPinata, 
+    downloadListFromPinata,
     uploadFileResult, 
     setUploadFileResult, 
     uploadJsonResult, 
