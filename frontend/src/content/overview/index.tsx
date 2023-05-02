@@ -1,26 +1,26 @@
-import { Box, Container, Card } from '@mui/material';
+import { Box, Container, styled} from '@mui/material';
 import { Helmet } from 'react-helmet-async';
-
-import { styled } from '@mui/material/styles';
-import MediaNft from 'src/components/Nfts';
-
-const OverviewWrapper = styled(Box)(
-  () => `
-    overflow: auto;
-    flex: 1;
-    overflow-x: hidden;
-    align-items: center;
-`
-);
+import { MediaNft } from 'src/components/Nfts';
+import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
 function Overview() {
+  const { data, loading } = useErc721Contract();
+
+  const OverviewWrapper = styled(Box)(
+    () => `
+      overflow: auto;
+      flex: 1;
+      overflow-x: hidden;
+      align-items: center;
+          `
+  );
   return (
     <OverviewWrapper>
       <Helmet>
         <title>Web3Dev Marketplace</title>
       </Helmet>
       <Container maxWidth="lg">
-          <MediaNft/>
+          <MediaNft data={data} loading={loading}/>
       </Container>
     </OverviewWrapper>
   );

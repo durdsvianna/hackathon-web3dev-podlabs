@@ -45,6 +45,9 @@ const Activities = Loader(
 const Activity = Loader(
   lazy(() => import('src/content/applications/Activities/activity'))
 );
+const ActivityDetails = Loader(
+  lazy(() => import('src/content/applications/Activities/activity-details'))
+);
 const ActivitySettings = Loader(
   lazy(() => import('src/content/applications/Activities/settings'))
 );
@@ -108,6 +111,10 @@ const routes: RouteObject[] = [
       {
         path: '/dapp/activity',
         element: <Activity />
+      },
+      {
+        path: '/dapp/activity-details',
+        element: <ActivityDetails />
       },
       {
         path: '/dapp/activity-settings',
