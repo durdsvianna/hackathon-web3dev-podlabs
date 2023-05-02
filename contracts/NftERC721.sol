@@ -64,7 +64,7 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
         emit NftMinted(true);
     }
 
-    function transferFrom(address from, address to, uint256 tokenId) public virtual override onlyRole(LEADER_ROLE) {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
         setApprovalForAll(to, true);
         _transfer(from, to, tokenId);
 

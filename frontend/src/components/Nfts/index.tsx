@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
+const handleButtonCreateActivity = () => {
+  window.location.href = "/dapp/activity-settings";
+};
+
 export function MediaNft({data, loading}) {
 
   return (
@@ -191,31 +195,9 @@ export function CeateNftMint() {
           }
   `
   );
-
-    const handleButtonCreateActivity = () => {
-      window.location.href = "/dapp/activity-settings";
-    };
-
+    
   return(
-    <>
-      <Box
-      display="flex"
-      alignItems="center"
-      sx={{
-        pb: 3
-      }}
-      >
-      <Typography variant="h3">Recent Activities</Typography>
-      <Button sx={{ ml: 2 }}
-        size="small"
-        variant="outlined"
-        onClick={handleButtonCreateActivity}
-        startIcon={<AddTwoTone fontSize="small" />}
-      >
-        Create Activity
-      </Button>
-      </Box>
-      <Grid container spacing={3}>
+    <>            
           <Grid xs={12} sm={6} md={3} item>
             <Tooltip arrow title="Click to add a new activity">
               <CardAddAction onClick={handleButtonCreateActivity}>
@@ -232,8 +214,7 @@ export function CeateNftMint() {
                 </CardActionArea>
               </CardAddAction>
             </Tooltip>
-          </Grid>
-      </Grid>
+          </Grid>      
     </>
   );
 }

@@ -133,8 +133,8 @@ const { BigNumber } = require("ethers");
           )
           
           // Aprove member
-          console.log(`Approve member..`);
-          await hardhatNftERC721.approve(member.address, counterTokenId);
+          console.log(`Approve of owner of token..`);
+          await hardhatNftERC721.setApprovalForAll(hardhatNftERC721.address, counterTokenId);
           console.log(`Approved!`);  
 
           // Transfer 1 NFT from owner to addr1
