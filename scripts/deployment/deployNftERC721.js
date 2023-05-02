@@ -11,13 +11,21 @@ async function deployNftERC721(chainId) {
     // ethers is available in the global scope
     const [deployer] = await ethers.getSigners();
     const deployerAddress = await deployer.getAddress();
+    const LEADER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LEADER_ROLE"));
+    const MEMBER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MEMBER_ROLE"));
 
     console.log("Deploying the ERC-721 contract with the account:", deployerAddress);
     const NftERC721 = await ethers.getContractFactory("NftERC721");
-    const erc721 = await NftERC721.deploy("Coleção DUH - Testnet", "DUH");
+    const erc721 = await NftERC721.deploy("Coleção DUH - Testnet", "DUH", deployerAddress);
     console.log("NFT (ERC-721) contract address:", erc721.address);
     await erc721.deployed();
-    
+
+    console.log('DEFAULT_ADMIN_ROLE = ', deployerAddress);
+    await erc721.grantRole(LEADER_ROLE, "0x608AbF4328F82Ef053EB1ee73feFA56518F73059");
+    console.log('New role LEADER_ROLE to adress 0x608AbF4328F82Ef053EB1ee73feFA56518F73059', LEADER_ROLE);
+    await erc721.grantRole(MEMBER_ROLE, "0xE860C991cdbcd8cF8C5e0C59C2F0B4f2e46043D5");
+    console.log('New role MEMBER_ROLE to adress 0xE860C991cdbcd8cF8C5e0C59C2F0B4f2e46043D5', MEMBER_ROLE);
+
     // We also save the contract's artifacts and address in the frontends directories
     saveFrontendFiles(erc721);
     

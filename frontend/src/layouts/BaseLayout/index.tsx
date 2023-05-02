@@ -3,6 +3,12 @@ import { Box, alpha, lighten, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import SuspenseLoader from 'src/components/SuspenseLoader';
+import { useAccount } from 'wagmi'
+// import { CheckMember } from 'src/components/User';
+
+// // Função Async não está renderizando 
+// const checkMember = CheckMember();
+// console.log(checkMember)
 
 const Loader = (Component) => (props) =>
   (
@@ -15,7 +21,6 @@ const Loader = (Component) => (props) =>
 
 const Overview = Loader(lazy(() => import('src/content/overview')));
 
-import { useAccount } from 'wagmi'
 
 interface BaseLayoutProps {
   children?: ReactNode;
@@ -55,7 +60,7 @@ const BaseLayout: FC<BaseLayoutProps> = () => {
         }}
       >
         <Header data={data} />
-        { data ? ( 
+        { data ? (  
           <Box
             sx={{
             position: 'relative',
