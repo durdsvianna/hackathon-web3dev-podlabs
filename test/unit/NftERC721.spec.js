@@ -49,6 +49,39 @@ const { BigNumber } = require("ethers");
         // Fixtures can return anything you consider useful for your tests
         return { NftERC721, hardhatNftERC721, owner, admin, leader, member};
       }
+
+      async function deployNftERC721WithGrantsAndMintFixture() {
+        // Get the ContractFactory and Signers here.
+        const NftERC721 = await ethers.getContractFactory("NftERC721");
+        const [owner, leader, member] = await ethers.getSigners();
+    
+        // To deploy our contract, we just have to call Token.deploy() and await
+        // for it to be deployed(), which happens onces its transaction has been
+        // mined.        
+        const hardhatNftERC721 = await NftERC721.deploy("Collection Test", "TST");
+
+        await hardhatNftERC721.deployed();
+
+        const LEADER_WALLET = leader.address;
+        const LEADER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LEADER_ROLE"));
+        const MEMBER_WALLET = member.address;
+        const MEMBER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MEMBER_ROLE"));
+          
+        await hardhatNftERC721.grantRole(MEMBER_ROLE, MEMBER_WALLET);
+        await hardhatNftERC721.grantRole(LEADER_ROLE, LEADER_WALLET);
+        console.log(
+          `=> MEMBER ${MEMBER_WALLET}  
+            => LEADER  ${LEADER_WALLET}`
+        )
+    
+        const tokenUri = "{\"name\":\"Atividade 4\",\"description\":\"Descrição da atividade 4\",\"image\":\"https://gateway.pinata.cloud/ipfs/QmW78MP2JunDmEEnVuVcAzqamm2vZj8rfEq3FFXU6qo1qB\",\"external_url\":\"https://github.com/durdsvianna/\",\"background_color\":\"\",\"animation_url\":\"\",\"youtube_url\":\"\",\"attributes\":[{\"trait_type\":\"Status\",\"value\":\"2\"},{\"trait_type\":\"Dificulty\",\"value\":\"2\"},{\"trait_type\":\"Expire Date\",\"value\":\"2023-04-30T03:00:00.000Z\"},{\"trait_type\":\"Rewards\",\"value\":\"230\"}]}"
+        //mint nfts
+        await hardhatNftERC721.connect(leader).safeMint(hardhatNftERC721.address, JSON.parse(tokenUri));
+        var counterTokenId = (await hardhatNftERC721.tokenIdCounter())-1;
+    
+        // Fixtures can return anything you consider useful for your tests
+        return { NftERC721, hardhatNftERC721, owner, leader, member, counterTokenId};
+      }
     
       // You can nest describe calls to create subsections.
       describe("Deployment", function () {
@@ -116,6 +149,32 @@ const { BigNumber } = require("ethers");
           await expect(balanceBefore).to.not.equals(balanceAfter);                  
         });
 
+        it("Should mint a NFT to the contract and add the activity (struct) into available activities and activities mapping", async function () {
+          const { hardhatNftERC721, owner, leader, member } = await loadFixture(deployNftERC721WithGrantsFixture);
+          const tokenUri = "{\"name\":\"Atividade 4\",\"description\":\"Descrição da atividade 4\",\"image\":\"https://gateway.pinata.cloud/ipfs/QmW78MP2JunDmEEnVuVcAzqamm2vZj8rfEq3FFXU6qo1qB\",\"external_url\":\"https://github.com/durdsvianna/\",\"background_color\":\"\",\"animation_url\":\"\",\"youtube_url\":\"\",\"attributes\":[{\"trait_type\":\"Status\",\"value\":\"2\"},{\"trait_type\":\"Dificulty\",\"value\":\"2\"},{\"trait_type\":\"Expire Date\",\"value\":\"2023-04-30T03:00:00.000Z\"},{\"trait_type\":\"Rewards\",\"value\":\"230\"}]}"
+          //mint nfts
+          var balanceBefore = await hardhatNftERC721.balanceOf(hardhatNftERC721.address);
+          console.log(`Mintando!`);
+          await hardhatNftERC721.connect(leader).safeMint(hardhatNftERC721.address, JSON.parse(tokenUri));
+          var counterTokenId = (await hardhatNftERC721.tokenIdCounter())-1;
+          console.log(`Minted to the contract! -> tokenId=`+counterTokenId);
+
+          var balanceAfter = await hardhatNftERC721.balanceOf(hardhatNftERC721.address);
+          console.log(
+            `=> Balance of contract ${hardhatNftERC721.address} is ${balanceBefore} on ${network.name} 
+              => Balance of contract ${hardhatNftERC721.address} is ${balanceAfter} on ${network.name}`
+          )
+
+          var isAvilable = await hardhatNftERC721.isAvailableActivity(counterTokenId);
+          var activity = await hardhatNftERC721.getActivity(counterTokenId);
+          //await expect(addressOfOwner).to.equals(hardhatNftERC721.address); 
+          console.log(
+            `=> Activity Token ID in mappinng: ${activity.tokenId}`
+          )
+          await expect(isAvilable).to.equals(true); 
+          await expect(activity.tokenId).to.equals(counterTokenId);                  
+        });
+
         it("Should mint a NFT to the contract and transfer NFTs between accounts", async function () {
           const { hardhatNftERC721, owner, leader, member } = await loadFixture(deployNftERC721WithGrantsFixture);
           const tokenUri = "{\"name\":\"Atividade 4\",\"description\":\"Descrição da atividade 4\",\"image\":\"https://gateway.pinata.cloud/ipfs/QmW78MP2JunDmEEnVuVcAzqamm2vZj8rfEq3FFXU6qo1qB\",\"external_url\":\"https://github.com/durdsvianna/\",\"background_color\":\"\",\"animation_url\":\"\",\"youtube_url\":\"\",\"attributes\":[{\"trait_type\":\"Status\",\"value\":\"2\"},{\"trait_type\":\"Dificulty\",\"value\":\"2\"},{\"trait_type\":\"Expire Date\",\"value\":\"2023-04-30T03:00:00.000Z\"},{\"trait_type\":\"Rewards\",\"value\":\"230\"}]}"
@@ -153,5 +212,27 @@ const { BigNumber } = require("ethers");
           await expect(await hardhatNftERC721.balanceOf(hardhatNftERC721.address))
             .to.equals(0);                    
         });
-      });      
+      });  
+      
+      describe("Transactions (with role grants, mints e structs)", function () {
+        it ("Should set activity to the member,delete it of available activities mapping and update the activity status to 'In Progress'", async function (){
+          const { hardhatNftERC721, owner, leader, member, counterTokenId } = await loadFixture(deployNftERC721WithGrantsAndMintFixture);
+          console.log(
+            `=> MEMBER: ${member.address}`
+          )
+          await hardhatNftERC721.setActivityOwner(counterTokenId, member.address);
+          console.log(
+            `=> Activity Token ID in mappinng: ${counterTokenId}`
+          )
+          var activity = await hardhatNftERC721.getActivity(counterTokenId);
+          var isAvailable = await hardhatNftERC721.isAvailableActivity(counterTokenId);
+          var activityOwner = await hardhatNftERC721.activityOwnerOf(counterTokenId);
+          console.log(
+            `=> Activity Token ID in mappinng: ${activity.tokenId}`
+          )
+          await expect(isAvailable).to.equals(false); 
+          await expect(activity.status).to.equals("In Progress");  
+          await expect(activityOwner).to.equals(member.address);  
+        });
+      });  
     }); 
