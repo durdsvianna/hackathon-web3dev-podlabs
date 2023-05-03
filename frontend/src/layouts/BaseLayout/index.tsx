@@ -4,11 +4,8 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import { useAccount } from 'wagmi'
-// import { CheckMember } from 'src/components/User';
-
-// // Função Async não está renderizando 
-// const checkMember = CheckMember();
-// console.log(checkMember)
+import  CheckMember  from 'src/components/User/CheckMember/index';
+import  CheckLeader from 'src/components/User/CheckLeader';
 
 const Loader = (Component) => (props) =>
   (
@@ -29,9 +26,16 @@ interface BaseLayoutProps {
 const BaseLayout: FC<BaseLayoutProps> = () => {
   const theme = useTheme();
   const { data } = useAccount();
+  const checkMembers = CheckMember();
+  const checkLeaders = CheckLeader();
 
   return (
     <>
+    {/* {checkMembers ?(
+      <div>TesteMember</div>
+    ): (
+      <div>TesteERRORMEMBER</div>
+    )} */}
       <Box
         sx={{
           flex: 1,
