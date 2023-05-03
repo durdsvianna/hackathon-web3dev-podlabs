@@ -1,6 +1,6 @@
 import { Box, Container, styled} from '@mui/material';
 import { Helmet } from 'react-helmet-async';
-import { MediaNft } from 'src/components/Nfts';
+import MediaNft from 'src/components/Nfts/MediaNft';
 import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
 function Overview() {
