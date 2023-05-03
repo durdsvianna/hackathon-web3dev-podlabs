@@ -3,7 +3,7 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 const { developmentChains } = require("../../helper-hardhat-config")
 const { expect } = require("chai")
 
-!developmentChains.includes(network.name)
+developmentChains.includes(network.name)
     ? describe.skip
     : describe("Token contract", function () {
       // We define a fixture to reuse the same setup in every test. We use
