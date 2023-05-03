@@ -3,7 +3,12 @@ import { Helmet } from 'react-helmet-async';
 
 import { Grid, Container } from '@mui/material';
 
-import { AccountBalanceNft, CeateNftMint, LasActivityNftDisplay, LastActivitiesNft, MediaNft } from 'src/components/Nfts';
+import AccountBalanceNft from 'src/components/Nfts/AccountBalanceNft';
+import CreateMintNft from 'src/components/Nfts/CreateMintNft';
+import LastActivityDisplayNft from 'src/components/Nfts/LastActivityDisplayNft';
+import LastActivitiesNft from 'src/components/Nfts/LastActivitiesNft';
+import MediaNft from 'src/components/Nfts/MediaNft';
+
 import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
 function ActivityDetails() {
@@ -28,8 +33,8 @@ function ActivityDetails() {
           <Grid item xs={12} md={12}>
             <MediaNft data={data} loading={loading}/>
             <LastActivitiesNft data={data}/>
-            <CeateNftMint/>
-            <LasActivityNftDisplay lastToken={lastToken}/>
+            <CreateMintNft/>
+            <LastActivityDisplayNft lastToken={lastToken}/>
             <AccountBalanceNft balance={balance}/>
           </Grid>
         </Grid>

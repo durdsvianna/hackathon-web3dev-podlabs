@@ -18,7 +18,7 @@ function Footer() {
       >
         <Box>
           <Typography variant="subtitle1">
-            &copy; 2022 - Web3Dev Admin Activities Dashboard
+            &copy; 2023 - Web3Dev Admin Activities Dashboard
           </Typography>
         </Box>
         <Typography

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { BigNumber, ethers } from 'ethers';
-import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 'wagmi';
+import { useState, useEffect, SetStateAction } from 'react';
+import { useContract, useSigner } from 'wagmi';
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import { NftOrder } from 'src/models/nft_order';
@@ -16,7 +15,7 @@ export function useErc721Contract() {
       addressOrName: contractAddress.NftERC721,
       contractInterface: NftERC721Artifact.abi,
     }
-    const { data: signer, isError, isLoading } = useSigner();
+    const { data: signer } = useSigner();
     const contractConfig = {
       ...contractReadConfig,
       signerOrProvider: signer,
@@ -25,12 +24,12 @@ export function useErc721Contract() {
     const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();
     const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
 
-    function balanceOf(to): void {
+    function balanceOf(to: string): void {
       if (contract != null) {
         try {
           let balancePromise = contract.balanceOf(to);
           console.log("balancePromise", balancePromise);
-          balancePromise.then(result => {
+          balancePromise.then((result: { toNumber: () => SetStateAction<string>; }) => {
               console.log("setBalance", result.toNumber());
               setBalance(result.toNumber());      
             });
@@ -52,8 +51,9 @@ export function useErc721Contract() {
           const metadata = downloadJsonFromPinata(ipfsGateway+uri).then(result => {
             console.log("result", result);        
             const activityJson = JSON.parse(result);
-            let rewards:string = ""
-            activityJson.attributes.forEach(attr => {
+            let rewards:number 
+            console.log("ACTIVITY JSON = ",activityJson)
+            activityJson.attributes.forEach((attr: { trait_type: string; value: number; }) => {
               if (attr.trait_type == 'Rewards')
                 rewards = attr.value;
             })            
@@ -69,12 +69,12 @@ export function useErc721Contract() {
                 creatorActivity: 'Douglas',
                 tag: 'tag#3',
                 dateLimit: 'Dezembro',
-                bounty: parseInt(rewards),
+                bounty: rewards,
                 difficulty: 'Avancado',
               };         
             setLastToken(nftOrder); 
             console.log("nftOrder", nftOrder);    
-            //setLoading(false);    
+            // setLoading(false);    
           });        
         } catch (error) {
           console.log("error", error);
@@ -143,7 +143,7 @@ export function useErc721Contract() {
                 //console.log("result", result);        
                 const activityJson = JSON.parse(result);
                 let rewards:string = ""
-                activityJson.attributes.forEach(attr => {
+                activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
                   if (attr.trait_type == 'Rewards')
                     rewards = attr.value;
                 })

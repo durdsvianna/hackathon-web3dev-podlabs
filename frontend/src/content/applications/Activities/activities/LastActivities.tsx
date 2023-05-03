@@ -1,4 +1,5 @@
-import { CeateNftMint, LastActivitiesNft } from 'src/components/Nfts';
+import CreateMintNft from 'src/components/Nfts/CreateMintNft';
+import LastActivitiesNft from 'src/components/Nfts/LastActivitiesNft';
 import {Card, CardActions, CardActionArea, CardContent, CardMedia, Button,Tooltip, Typography, Box, Grid, Avatar, styled, alpha} from '@mui/material';
 import { AddTwoTone } from '@mui/icons-material';
 function LastActivities({ data }) {  
@@ -27,7 +28,7 @@ function LastActivities({ data }) {
       </Button>
     </Box>
     <Grid container spacing={3}>
-      <CeateNftMint/>
+      <CreateMintNft/>
       <LastActivitiesNft data={data}/>
     </Grid>
     
