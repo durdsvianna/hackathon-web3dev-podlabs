@@ -8,6 +8,12 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
 
+    struct Activity {
+        uint256 tokenId;
+        string status;
+        string tokenUri;
+    }
+
     using Counters for Counters.Counter;
     Counters.Counter public tokenIdCounter;    
 
@@ -19,7 +25,11 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
     bytes32 public constant LEADER_ROLE = keccak256("LEADER_ROLE");
     bytes32 public constant MEMBER_ROLE = keccak256("MEMBER_ROLE");
 
-    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 => Activity) private _activities;
+    mapping(uint256 => bool) private _availableActivities;
+    mapping(uint256 => address) private _activityOwners;
+
+
 
     constructor(string memory _collectionName, string memory _token) ERC721(_collectionName, _token) payable {
         owner = msg.sender;
@@ -40,10 +50,43 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
      *
      * Emits a {nftStatus} event.
      */
-    function getActivity() public onlyRole(MEMBER_ROLE) {
-        // Requer que NFT mintado não tenha sido pego
-        // Se Nft não tiver sido mintado consigo entrar na whitelist para mintar o nft
+    function setActivityOwner(uint256 tokenId, address to) public {
+        // Requer que NFT mintado esteja disponível
+        require(_availableActivities[tokenId], "Activity not available!");
+        // TODO: Requer q a data atual não tenha ultrapassado a data de expiração da atividade
+        
+        //atualiza status da atividade
+        _activities[tokenId].status = "In Progress";
+
+        //remove da lista de disponíveis 
+        delete _availableActivities[tokenId]; 
+
+        //atribui o membro como dono da atividade       
+        _activityOwners[tokenId] = to;
     }
+
+    /**
+     * @dev Returns the activity owner of the `tokenId`. Does NOT revert if token doesn't exist
+     */
+    function activityOwnerOf(uint256 tokenId) public view virtual returns (address) {    
+        address addr = _activityOwners[tokenId];
+        return addr;
+    }
+
+    /**
+     * @dev Return true if the activity is avilable
+     */
+    function isAvailableActivity(uint256 tokenId) public view virtual returns (bool) {    
+        return _availableActivities[tokenId];
+    }
+
+    /**
+     * @dev Return true if the activity is avilable
+     */
+    function getActivity(uint256 tokenId) public view virtual returns (Activity memory) {    
+        return _activities[tokenId];
+    }
+    
     
     /**
      * @dev See {ipfsUri}
@@ -59,6 +102,15 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
         tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, ipfsUri);
+
+        //create activity
+        Activity memory activity;
+        activity.tokenId = tokenId;
+        activity.tokenUri = ipfsUri;
+        activity.status = "Available";
+
+        _availableActivities[tokenId] = true;
+        _activities[tokenId] = activity;
         
         // EVENT
         emit NftMinted(true);
@@ -112,6 +164,7 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
         return tokenIdCounter.current();
     }   
 
+    
     // The following functions is an override required by Solidity.
     function supportsInterface(bytes4 interfaceId)
         public
