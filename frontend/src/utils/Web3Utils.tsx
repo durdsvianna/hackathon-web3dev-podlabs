@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
 
 
@@ -31,12 +31,15 @@ export function useShortenAddressOrEnsName() {
   }
 
 export function useWalletAddress() {
-    function walletAddress(length = 5): string {
+    async function walletAddress(length = 5): Promise<string> {
       const { data: accountData } = useAccount();
-
+      console.log('AAAAAAAA', accountData?.address);
       return accountData?.address;
     }
-  
+    useEffect(() => {
+      walletAddress();
+    }, [])
+    
     return { walletAddress };
   }
 

@@ -4,6 +4,7 @@ import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import { NftOrder } from 'src/models/nft_order';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
+import { useWalletAddress } from './Web3Utils';
   
 export function useErc721Contract() {
     const [data, setData] = useState<NftOrder[]>([]);
@@ -11,6 +12,9 @@ export function useErc721Contract() {
     const [counter, setCounter] = useState<number>(-1);
     const [balance, setBalance] = useState<string>('');      
     const [loading, setLoading] = useState(false);
+    const [checkMember, setCheckMember] = useState(true);
+    const [checkLeader, setCheckLeader] = useState(false);
+
     const contractReadConfig = {
       addressOrName: contractAddress.NftERC721,
       contractInterface: NftERC721Artifact.abi,
@@ -182,14 +186,44 @@ export function useErc721Contract() {
       }
     }
   
+    async function loadCheckAddress() {
+
+      const { walletAddress } = useWalletAddress();
+      const wallet = walletAddress();
+
+      setLoading(true);
+      if (contract != null) {
+        try {          
+          const leader:boolean = await contract.checkAddressLeader(wallet); 
+          const member:boolean = await contract.checkAddressMember(wallet);  
+          if(leader == true){
+            setCheckLeader(true)
+          }else{
+            setCheckLeader(false)
+          }
+          if(member == true){
+            setCheckMember(true)
+          }else{  
+            setCheckMember(false)
+          }
+          console.log('Address Account', wallet);
+          console.log('Check Leader  = ', checkLeader);  
+          console.log('Check Member  = ', checkMember);      
+        } catch (error) {
+          console.log("errors", error);
+          }          
+      }
+    }    
+
     useEffect(() => {      
         loadNfts();
         loadLastNft();
         //loadListNfts();
+        loadCheckAddress();
         balanceOf(process.env.REACT_APP_DAPP_CONTRACT);
     }, []);
 
-    return { data, loading, counter, lastToken, balance };
+    return { data, loading, counter, lastToken, balance, checkMember, checkLeader };
   }
 
 
