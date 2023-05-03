@@ -1,4 +1,4 @@
-import { useState, forwardRef, useCallback } from 'react';
+import { useState, forwardRef, useCallback, SetStateAction } from 'react';
 import {useDropzone} from 'react-dropzone';
 import bgimage from 'src/images/image.svg';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
@@ -129,7 +129,7 @@ function ActivityTab() {
   });
   const [openInformartion, setOpenInformartion] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const [valueReward, setValueReward] = useState<string>('0');
+  const [valueReward, setValueReward] = useState<Number>(0);
   const [activityStatus, setActivityStatus] = useState('');
   const [activityDificulty, setActivityDificulty] = useState('');
   const [nameOrAddress, setNameOrAddress] = useState(unnamed);
@@ -259,7 +259,8 @@ function ActivityTab() {
     }];
   };
   const handleChangeReward = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValueReward(event.target.value);  
+    const value = Number(event.target.value); 
+    setValueReward(value);
   };
 
   const onDrop = useCallback(async(acceptedFiles) => {

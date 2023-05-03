@@ -1,8 +1,6 @@
-import {Card, CardActions, CardActionArea, CardContent, CardMedia, Button,Tooltip, Typography, Box, Grid, Avatar, styled, alpha} from '@mui/material';
-import { AddTwoTone, TrendingUp } from '@mui/icons-material';
-import { Key, ReactChild, ReactFragment, ReactPortal, useEffect, useState } from 'react';
+import {Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
+import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
 import SuspenseLoader from 'src/components/SuspenseLoader';
-import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 export default function MediaNft({data, loading}) {
 
@@ -16,7 +14,7 @@ export default function MediaNft({data, loading}) {
           marginTop: 4,
         }}>
         <Grid container spacing={2}>
-          {data.map((nftData: { image: string; name: boolean | ReactChild | ReactFragment | ReactPortal; description: boolean | ReactChild | ReactFragment | ReactPortal; }, index: Key) => (
+          {data.map((nftData: { bounty: number; image: string; name: boolean | ReactChild | ReactFragment | ReactPortal; description: boolean | ReactChild | ReactFragment | ReactPortal; }, index: Key) => (
             <Grid item xs={12} sm={6} md={6} lg={4} key={index}>
               <Card sx={{ maxWidth: 345 }}>
                 <CardMedia
@@ -30,6 +28,9 @@ export default function MediaNft({data, loading}) {
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {nftData.description}
+                  </Typography>
+                  <Typography variant="h4" color="text.primary" align={'right'}>
+                    Bounty ${nftData.bounty}
                   </Typography>
                 </CardContent>
                 <CardActions>

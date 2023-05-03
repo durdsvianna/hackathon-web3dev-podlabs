@@ -51,8 +51,9 @@ export function useErc721Contract() {
           const metadata = downloadJsonFromPinata(ipfsGateway+uri).then(result => {
             console.log("result", result);        
             const activityJson = JSON.parse(result);
-            let rewards:string = ""
-            activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
+            let rewards:number 
+            console.log("ACTIVITY JSON = ",activityJson)
+            activityJson.attributes.forEach((attr: { trait_type: string; value: number; }) => {
               if (attr.trait_type == 'Rewards')
                 rewards = attr.value;
             })            
@@ -68,7 +69,7 @@ export function useErc721Contract() {
                 creatorActivity: 'Douglas',
                 tag: 'tag#3',
                 dateLimit: 'Dezembro',
-                bounty: parseInt(rewards),
+                bounty: rewards,
                 difficulty: 'Avancado',
               };         
             setLastToken(nftOrder); 
@@ -142,7 +143,7 @@ export function useErc721Contract() {
                 //console.log("result", result);        
                 const activityJson = JSON.parse(result);
                 let rewards:string = ""
-                activityJson.attributes.forEach(attr => {
+                activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
                   if (attr.trait_type == 'Rewards')
                     rewards = attr.value;
                 })
