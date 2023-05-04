@@ -32,7 +32,7 @@ function ManagementActivitySettings() {
   return (
     <>
       <Helmet>
-        <title>Activity Settings - Applications</title>
+        <title>Activity Settings - Leader</title>
       </Helmet>
       <PageTitleWrapper>
         <PageHeader />
