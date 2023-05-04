@@ -1,8 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
 
-
-  
 export function useShortenAddressOrEnsName() {
     function shortenAddressOrEnsName(length = 5): string {
       const { data: accountData } = useAccount();
@@ -23,27 +20,25 @@ export function useShortenAddressOrEnsName() {
 
       const prefix = owner.slice(0, length + 2);
       const suffix = owner.slice(owner.length - length);
-  
+      
       return ensNameData ?? `${prefix}...${suffix}`;
     }
-  
+    
     return { shortenAddressOrEnsNameOfOwner };
   }
-
-export function useWalletAddress() {
-    async function walletAddress(length = 5): Promise<string> {
+  
+  export function useWalletAddress() {
+    function walletAddress(){
       const { data: accountData } = useAccount();
-      console.log('AAAAAAAA', accountData?.address);
-      return accountData?.address;
+      const addressWallet = accountData?.address;
+  
+      return addressWallet
     }
-    useEffect(() => {
-      walletAddress();
-    }, [])
-    
+  
     return { walletAddress };
   }
 
-export function useEnsNameOrShortenAddress() {
+  export function useEnsNameOrShortenAddress() {
     function ensNameOrShortenAddress(length = 5): string {
       const { data: accountData } = useAccount();
       const { data: ensNameData } = useEnsName({ address: accountData?.address });
@@ -53,5 +48,3 @@ export function useEnsNameOrShortenAddress() {
   
     return { ensNameOrShortenAddress };
   }
-
-  

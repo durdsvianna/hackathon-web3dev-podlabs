@@ -132,7 +132,7 @@ function ActivityTab() {
   const [valueReward, setValueReward] = useState<Number>(0);
   const [activityStatus, setActivityStatus] = useState('');
   const [activityDificulty, setActivityDificulty] = useState('');
-  const [nameOrAddress, setNameOrAddress] = useState(unnamed);
+  const [creator, setCreator] = useState('');
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
   const [expireDate, setExpireDate] = useState<DatePickerProps<Dayjs> | null>(null);
@@ -186,13 +186,19 @@ function ActivityTab() {
       value: valueReward
     }];
 
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Creator',
+      value: creator
+    }];
+
     //armazena imagem IPS
     try {
       const ipfsImageResult = await uploadFileToPinata(imageFile);        
       setUploadFileResult(ipfsImageResult); 
       nft.image = ipfsImageResult.IpfsHash.toString();      
       console.log("ipfsImageResult", ipfsImageResult); 
-      console.log("expireDate", expireDate);         
+      console.log("expireDate", expireDate);    
+      console.log('Creator Activity Address', creator)
     } catch (error) {
       setOpenError(true);
       console.log("Erro: ", error);
@@ -234,12 +240,13 @@ function ActivityTab() {
     nft.description = event.target.value;
   };
   const handleLoadCreator = () => {
-    if (nameOrAddress === unnamed){
-      const member = shortenAddressOrEnsName();
-      setNameOrAddress(member);  
+    
+    if (creator == ''){
+      const name = shortenAddressOrEnsName();
+      setCreator(name);  
       nft.attributes = [...nft.attributes,{
         trait_type: 'Creator',
-        value: member
+        value: creator
       }];
     }
   }
@@ -412,7 +419,7 @@ function ActivityTab() {
                 label="Creator"
                 disabled
                 onBeforeInput={handleLoadCreator}
-                defaultValue={nameOrAddress}
+                value={creator}
               />  
               <TextField {...register("valueReward")}
                   label="Reward ($)"
