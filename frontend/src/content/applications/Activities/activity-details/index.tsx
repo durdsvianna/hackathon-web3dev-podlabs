@@ -1,13 +1,10 @@
 import Footer from 'src/components/Footer';
 import { Helmet } from 'react-helmet-async';
 
-import { Grid, Container } from '@mui/material';
+import { Grid, Container, Card } from '@mui/material';
 
-import AccountBalanceNft from 'src/components/Nfts/AccountBalanceNft';
-import CreateMintNft from 'src/components/Nfts/CreateMintNft';
-import LastActivityDisplayNft from 'src/components/Nfts/LastActivityDisplayNft';
-import LastActivitiesNft from 'src/components/Nfts/LastActivitiesNft';
-import MediaNft from 'src/components/Nfts/MediaNft';
+import ActivityDetailsNft from 'src/components/Nfts/ActivityDetailsNft';
+import DetailsNft from './detailsNft'
 
 import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
@@ -19,24 +16,19 @@ function ActivityDetails() {
       <Helmet>
         <title>Activity Details - Member</title>
       </Helmet>
-      <Container sx={{ mt: 3 }} maxWidth="lg">
+      <Container sx={{mt: 3}} maxWidth="lg">
         <Grid
           container
           direction="row"
           justifyContent="center"
-          alignItems="stretch"
-          spacing={3}
+          alignItems='center'
+          spacing={2}
         >
-          <Grid item xs={12} md={12}>
-          </Grid>          
 
-          <Grid item xs={12} md={12}>
-            <MediaNft data={data} loading={loading}/>
-            <LastActivitiesNft data={data}/>
-            <CreateMintNft/>
-            <LastActivityDisplayNft lastToken={lastToken}/>
-            <AccountBalanceNft balance={balance}/>
-          </Grid>
+              <Grid item xs={12} md={12} >
+                <ActivityDetailsNft data={data} loading={loading}/>
+              </Grid>    
+              
         </Grid>
       </Container>
       <Footer />

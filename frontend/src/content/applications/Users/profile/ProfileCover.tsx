@@ -12,12 +12,12 @@ import {
 import { styled } from '@mui/material/styles';
 
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
-import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import MoreHorizTwoToneIcon from '@mui/icons-material/MoreHorizTwoTone';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { useState } from 'react';
+import { useIpfsUploader } from 'src/utils/IpfsUtils';
 
 const Input = styled('input')({
   display: 'none'
@@ -83,20 +83,56 @@ const CardCoverAction = styled(Box)(
 
 const ProfileCover = ({ user: UserProfile }) => {
 
-  const [coverImg, setCoverImg] = useState(UserProfile.coverImg);
-  const [avatar, setAvatar] = useState(UserProfile.avatar);
+  const { uploadFileToPinata, uploadFileResult, setUploadFileResult, uploadJsonResult, setUploadJsonResult, uploadJsonToPinata } = useIpfsUploader();
 
-  const handleChangeCover = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+  const [cover, setCover] = useState(UserProfile.coverImg);
+  const [avatar, setAvatar] = useState(UserProfile.avatar);
+  const [url , setUrl] = useState('src/images/image.svg');
+  const [imageFile , setImageFile] = useState<File | null>(null);
+
+  const [profile, setProfile] = useState({
+    name: '',
+    coverImg: cover,
+    avatar: '/static/images/avatars/4.jpg',
+    description: "Description Profile",
+    jobTitle: 'Web Developer',
+    location: 'Barcelona, Spain',
+    social: '465',
+  });
+
+  const onSubmit = async (event: { preventDefault: () => void }) => {
+    try {
+      const ipfsImageResult = await uploadFileToPinata(imageFile);
+      setUploadFileResult(ipfsImageResult);
+      setCover(ipfsImageResult.IpfsHash.toString());
   
-    reader.onloadend = () => {
-      setCoverImg(reader.result);
-    };
+      const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(url), "image-info.json");
+      setUploadJsonResult(ipfsJsonResult);
   
-    if (file) {
-      reader.readAsDataURL(file);
+      setProfile((prevProfile) => {
+        return {
+          ...prevProfile,
+          coverImg: ipfsImageResult.IpfsHash.toString()
+        };
+      });
+      console.log("ipfsImageResult", ipfsImageResult.IpfsHash);
+    } catch (error) {
+      console.log("Erro: ", error);
     }
+  };
+  
+
+  const handleChangeCover = async (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setUrl(imageUrl);
+      setImageFile(file);
+    }
+    
+    const ipfsJsonResult = await uploadJsonToPinata(JSON.stringify(profile.coverImg), "User Image");        
+    setUploadJsonResult(ipfsJsonResult);
+    console.log('ipfsJson', ipfsJsonResult);
   };
 
   const handleChangeAvatar = (event) => {
@@ -134,7 +170,7 @@ const ProfileCover = ({ user: UserProfile }) => {
         </Box>
       </Box>
       <CardCover>
-        <CardMedia image={coverImg} />
+        <CardMedia image={cover} />
         <CardCoverAction>
           <Input accept="image/*" id="change-cover" multiple type="file" onChange={handleChangeCover}/>
           <label htmlFor="change-cover">
@@ -142,6 +178,7 @@ const ProfileCover = ({ user: UserProfile }) => {
               startIcon={<UploadTwoToneIcon />}
               variant="contained"
               component="span"
+              onChange={handleChangeCover}
             >
               Modificar papel de parede
             </Button>
