@@ -1,4 +1,4 @@
-import { useState, forwardRef, useCallback, SetStateAction } from 'react';
+import { useState, forwardRef, useCallback } from 'react';
 import {useDropzone} from 'react-dropzone';
 import bgimage from 'src/images/image.svg';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
@@ -25,8 +25,7 @@ import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { useDateFormatter } from 'src/utils/DateUtils';
-
-import { useContract, useAccount, useEnsName, useSigner } from 'wagmi';
+import { useContract, useAccount, useEnsName, useSigner, useProvider } from 'wagmi';
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import UserProfile  from 'src/components/User/UserProfile';
@@ -123,7 +122,7 @@ const schema = yup.object({
 }).required();
 
 function ActivityTab() {
-
+  //const [ethAmount, setEthAmount] = useState<number>(0);
   const user = UserProfile();
   const creator = user.name;
   const { register, handleSubmit, formState:{ errors } } = useForm({
@@ -131,7 +130,7 @@ function ActivityTab() {
   });
   const [openInformartion, setOpenInformartion] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const [valueReward, setValueReward] = useState<Number>(0);
+  const [valueReward, setValueReward] = useState<number>(0);
   const [activityStatus, setActivityStatus] = useState('');
   const [activityDificulty, setActivityDificulty] = useState('');
   const [description, setDescription] = useState('');
@@ -145,6 +144,7 @@ function ActivityTab() {
   const [toAddress , setToAddress] = useState('');
   const [imageCoverLoaded , setImageCoverLoaded] = useState(false);
   const { data: signer, isError, isLoading } = useSigner();
+  const provider = useProvider(); 
   const [ nft, setNft] = useState({
     name: '',
     description: '',
@@ -167,12 +167,19 @@ function ActivityTab() {
   };
 
   const contract = useContract(contractConfig);
-  const mintNft = async (tokenUri, to) => {
+  const mintNft = async (tokenUri, to) => { 
+    console.log("ENTROU NO MINT")
     //realiza o mint da NFT          
-    const mintResult = contract.safeMint(to, tokenUri);
+    // Replace 'mainnet' with your desired Ethereum network
+    console.log("provider",provider)
+    // const exchangeRatePromise = provider.getEtherPrice();
+    // exchangeRatePromise.then((exchangeRate) => {      
+    //   const ethAmount = valueReward / exchangeRate;
+    //   console.log("ethAmount", ethAmount);          
+
+    // });
+    const mintResult = contract.safeMint(to, tokenUri, {value: 1});
     console.log("mintResult", mintResult);    
-      
-    return mintResult ? "NFT minted with success!" : "Error! NFT NOT minted!";
   }  
 
   const onSubmit = async(event: { preventDefault: () => void; }) => {
@@ -185,7 +192,7 @@ function ActivityTab() {
       trait_type: 'Rewards',
       value: valueReward
     }];
-
+    
     nft.attributes = [...nft.attributes,{
       trait_type: 'Creator',
       value: creator
