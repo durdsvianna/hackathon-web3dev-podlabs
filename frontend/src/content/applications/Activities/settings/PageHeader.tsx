@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { Typography, Grid } from '@mui/material';
-import { useDateFormatter } from 'src/utils/DateUtils';
 import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 function PageHeader() {

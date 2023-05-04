@@ -17,7 +17,7 @@ function ApplicationsTransactions() {
   return (
     <>
       <Helmet>
-        <title>Web3Dev - Activities</title>
+        <title>Activities - Leader</title>
       </Helmet>
       <PageTitleWrapper>
         <PageHeader />

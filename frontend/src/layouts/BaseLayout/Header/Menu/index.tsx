@@ -11,6 +11,7 @@ import { useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
+import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
 const ListWrapper = styled(Box)(
   ({ theme }) => `
@@ -66,6 +67,7 @@ const ListWrapper = styled(Box)(
 function HeaderMenu({data}) {
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+  const { checkLeader } = useErc721Contract();
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -95,7 +97,8 @@ function HeaderMenu({data}) {
             <img src="../../../web3dev.png" alt="Web3Dev" />
           </ListItem>          
           {
-            data && <>
+            !checkLeader ?
+            data &&  (<>
               <ListItem
                 classes={{ root: 'MuiListItem-indicators' }}
                 button
@@ -128,6 +131,8 @@ function HeaderMenu({data}) {
                 />
               </ListItem>
             </>
+            ):
+            <div>Teste Erro</div>
           }
         </List>
       </ListWrapper>

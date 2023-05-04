@@ -24,12 +24,12 @@ import { Dayjs } from 'dayjs';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
-import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 import { useDateFormatter } from 'src/utils/DateUtils';
 
 import { useContract, useAccount, useEnsName, useSigner } from 'wagmi';
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
+import UserProfile  from 'src/components/User/UserProfile';
 
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
@@ -123,7 +123,9 @@ const schema = yup.object({
 }).required();
 
 function ActivityTab() {
-  const unnamed = "Unnamed";
+
+  const user = UserProfile();
+  const creator = user.name;
   const { register, handleSubmit, formState:{ errors } } = useForm({
     resolver: yupResolver(schema)
   });
@@ -132,7 +134,6 @@ function ActivityTab() {
   const [valueReward, setValueReward] = useState<Number>(0);
   const [activityStatus, setActivityStatus] = useState('');
   const [activityDificulty, setActivityDificulty] = useState('');
-  const [nameOrAddress, setNameOrAddress] = useState(unnamed);
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
   const [expireDate, setExpireDate] = useState<DatePickerProps<Dayjs> | null>(null);
@@ -154,7 +155,6 @@ function ActivityTab() {
     youtube_url: '',
     attributes: []
   });  
-  const { shortenAddressOrEnsName } = useShortenAddressOrEnsName();
   const { getFormattedDate, languageFormat, setLanguageFormat } = useDateFormatter('pt-BR');
   const { uploadToInfura, uploadFileToPinata, uploadJsonToPinata, uploadFileResult, setUploadFileResult, uploadJsonResult, setUploadJsonResult } = useIpfsUploader();
   const contractReadConfig = {
@@ -186,13 +186,19 @@ function ActivityTab() {
       value: valueReward
     }];
 
+    nft.attributes = [...nft.attributes,{
+      trait_type: 'Creator',
+      value: creator
+    }];
+
     //armazena imagem IPS
     try {
       const ipfsImageResult = await uploadFileToPinata(imageFile);        
       setUploadFileResult(ipfsImageResult); 
       nft.image = ipfsImageResult.IpfsHash.toString();      
       console.log("ipfsImageResult", ipfsImageResult); 
-      console.log("expireDate", expireDate);         
+      console.log("expireDate", expireDate);    
+      console.log('Creator Activity Address', creator)
     } catch (error) {
       setOpenError(true);
       console.log("Erro: ", error);
@@ -233,16 +239,7 @@ function ActivityTab() {
     setDescription(event.target.value);
     nft.description = event.target.value;
   };
-  const handleLoadCreator = () => {
-    if (nameOrAddress === unnamed){
-      const member = shortenAddressOrEnsName();
-      setNameOrAddress(member);  
-      nft.attributes = [...nft.attributes,{
-        trait_type: 'Creator',
-        value: member
-      }];
-    }
-  }
+
   const handleChangeStatus = (event) => {
     setActivityStatus(event.target.value);
     nft.attributes = [...nft.attributes,{
@@ -411,8 +408,7 @@ function ActivityTab() {
                 id="outlined-required"
                 label="Creator"
                 disabled
-                onBeforeInput={handleLoadCreator}
-                defaultValue={nameOrAddress}
+                value={creator}
               />  
               <TextField {...register("valueReward")}
                   label="Reward ($)"

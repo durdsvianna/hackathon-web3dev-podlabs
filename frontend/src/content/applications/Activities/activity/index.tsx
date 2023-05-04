@@ -5,12 +5,11 @@ import { Grid, Container } from '@mui/material';
 
 import ProfileCover from './ProfileCover';
 import RecentActivity from 'src/components/RecentActivity';
-import { UserProfile } from 'src/components/User';
+import UserProfile  from 'src/components/User/UserProfile';
 
 function ManagementActivity() {
   const user = UserProfile();
-  // const checkMembers = CheckMember();
-  // console.log("Check Members = ", checkMembers)
+
   return (
     <>
       <Helmet>

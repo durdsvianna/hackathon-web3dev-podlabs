@@ -4,6 +4,7 @@ import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import { NftOrder } from 'src/models/nft_order';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
+import { useWalletAddress } from 'src/utils/Web3Utils';
   
 export function useErc721Contract() {
     const [data, setData] = useState<NftOrder[]>([]);
@@ -11,6 +12,9 @@ export function useErc721Contract() {
     const [counter, setCounter] = useState<number>(-1);
     const [balance, setBalance] = useState<string>('');      
     const [loading, setLoading] = useState(false);
+    const [checkMember, setCheckMember] = useState(true);
+    const [checkLeader, setCheckLeader] = useState(false);
+
     const contractReadConfig = {
       addressOrName: contractAddress.NftERC721,
       contractInterface: NftERC721Artifact.abi,
@@ -51,11 +55,14 @@ export function useErc721Contract() {
           const metadata = downloadJsonFromPinata(ipfsGateway+uri).then(result => {
             console.log("result", result);        
             const activityJson = JSON.parse(result);
-            let rewards:number 
+            let rewards:string 
+            let creator:string
             console.log("ACTIVITY JSON = ",activityJson)
-            activityJson.attributes.forEach((attr: { trait_type: string; value: number; }) => {
+            activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
               if (attr.trait_type == 'Rewards')
                 rewards = attr.value;
+              if (attr.trait_type == 'Creator')
+                creator = attr.value;
             })            
             const nftOrder: NftOrder = 
               {
@@ -66,10 +73,10 @@ export function useErc721Contract() {
                 image: ipfsGateway + activityJson.image,
                 status: 'Concluido',
                 attributes: 'Comunidade',
-                creatorActivity: 'Douglas',
+                creatorActivity: creator,
                 tag: 'tag#3',
                 dateLimit: 'Dezembro',
-                bounty: rewards,
+                bounty: Number(rewards),
                 difficulty: 'Avancado',
               };         
             setLastToken(nftOrder); 
@@ -142,10 +149,13 @@ export function useErc721Contract() {
               const metadata = downloadJsonFromPinata(ipfsGateway+token.tokenUri).then(result => {
                 //console.log("result", result);        
                 const activityJson = JSON.parse(result);
-                let rewards:string = ""
+                let rewards:string 
+                let creator:string
                 activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
                   if (attr.trait_type == 'Rewards')
                     rewards = attr.value;
+                  if (attr.trait_type == 'Creator')
+                    creator = attr.value;
                 })
                 const nftOwnerPromise = contract.ownerOf(nftQuantity.toNumber()-1); 
                 const nftOwner = nftOwnerPromise.then(result => {return result.result});
@@ -159,7 +169,7 @@ export function useErc721Contract() {
                     image: ipfsGateway+activityJson.image,
                     status: 'Concluido',
                     attributes: 'Comunidade',
-                    creatorActivity: 'Douglas',
+                    creatorActivity: creator,
                     tag: 'tag#3',
                     dateLimit: 'Dezembro',
                     bounty: parseInt(rewards),
@@ -182,17 +192,42 @@ export function useErc721Contract() {
       }
     }
   
+    async function loadCheckAddress() {
+
+      const { walletAddress } = useWalletAddress();
+      const wallet = walletAddress();
+
+      setLoading(true);
+      if (contract != null) {
+        try {          
+          const leader:boolean = await contract.checkAddressLeader(wallet); 
+          const member:boolean = await contract.checkAddressMember(wallet);  
+          if(leader === true){
+            setCheckLeader(true)
+          }else{
+            setCheckLeader(false)
+          }
+          if(member === true){
+            setCheckMember(true)
+          }else{  
+            setCheckMember(false)
+          }
+          console.log('Address Account', wallet);
+          console.log('Check Leader  = ', checkLeader);  
+          console.log('Check Member  = ', checkMember);      
+        } catch (error) {
+          console.log("errors", error);
+          }          
+      }
+    }    
+
     useEffect(() => {      
         loadNfts();
         loadLastNft();
         //loadListNfts();
+        loadCheckAddress();
         balanceOf(process.env.REACT_APP_DAPP_CONTRACT);
     }, []);
 
-    return { data, loading, counter, lastToken, balance };
+    return { data, loading, counter, lastToken, balance, checkMember, checkLeader };
   }
-
-
-
-
-  

@@ -70,13 +70,16 @@ const CardCover = styled(Card)(
 `
 );
 
+const handleButtonHome = () => {
+  window.location.href = "/dapp/#";
+};
 
 const ProfileCover = ({ user }) => {
   return (
     <>
       <Box display="flex" mb={3}>
         <Tooltip arrow placement="top" title="Go back">
-          <IconButton color="primary" sx={{ p: 2, mr: 2 }}>
+          <IconButton color="primary" sx={{ p: 2, mr: 2 }} onClick={handleButtonHome}>
             <ArrowBackTwoToneIcon />
           </IconButton>
         </Tooltip>
