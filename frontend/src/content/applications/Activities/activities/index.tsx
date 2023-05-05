@@ -10,14 +10,20 @@ import LastActivities from './LastActivities';
 
 import { useErc721Contract } from "src/utils/Web3Erc721Utils"
 import SuspenseLoader from 'src/components/SuspenseLoader';
+import { useEffect } from 'react';
 
-function ApplicationsTransactions() {
-  const { data, loading, lastToken, balance } = useErc721Contract();
+function ApplicationsActivities() {
+  const { data, loading, lastToken, balance, setLoading } = useErc721Contract();
 
+  useEffect(() => {
+    return () => {
+      setLoading(false);
+    }
+  },[])
   return (
     <>
       <Helmet>
-        <title>Activities - Leader</title>
+        <title>Web3Dev - Activities</title>
       </Helmet>
       <PageTitleWrapper>
         <PageHeader />
@@ -50,4 +56,4 @@ function ApplicationsTransactions() {
   );
 }
 
-export default ApplicationsTransactions;
+export default ApplicationsActivities;

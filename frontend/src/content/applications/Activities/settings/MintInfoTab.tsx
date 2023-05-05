@@ -9,6 +9,7 @@ import {
   ListItemText,
   Divider,
   Button,
+  TextField,
   ListItemAvatar,
   Avatar,
   Switch,
@@ -25,11 +26,13 @@ import {
   useTheme,
   styled,
 } from '@mui/material';
-
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 import DoneTwoToneIcon from '@mui/icons-material/DoneTwoTone';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { format, subHours, subWeeks, subDays } from 'date-fns';
-
+import { useContractApprovementActivity } from "src/utils/Web3Erc721Utils"
 const ButtonError = styled(Button)(
   ({ theme }) => `
      background: ${theme.colors.error.main};
@@ -49,6 +52,14 @@ const AvatarSuccess = styled(Avatar)(
 `
 );
 
+const AvatarFired = styled(Avatar)(
+  ({ theme }) => `
+    background: ${theme.colors.error.light};
+    width: ${theme.spacing(5)};
+    height: ${theme.spacing(5)};
+`
+);
+
 const AvatarWrapper = styled(Avatar)(
   ({ theme }) => `
     width: ${theme.spacing(5)};
@@ -56,12 +67,28 @@ const AvatarWrapper = styled(Avatar)(
 `
 );
 
-function MintInfoTab() {
-  const theme = useTheme();
+const activityStatusList = [
+  {
+    value: '3',
+    label: 'Approved'
+  },
+  {
+    value: '4',
+    label: 'Not Approved'
+  }
+];
 
+const schema = yup.object({
+  status: yup.string().required('Campo obrigatório.'),
+}).required();
+
+
+function MintInfoTab({data}) {
+  const theme = useTheme();
+  const [activityStatus, setActivityStatus] = useState('Select');
   const [page, setPage] = useState(2);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  const {loading, setLoading, errors, approveActivityMultisig } = useContractApprovementActivity();
   const handleChangePage = (
     event: MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -76,73 +103,75 @@ function MintInfoTab() {
     setPage(0);
   };
 
-  const logs = [
-    {
-      id: 1,
-      browser: ' Safari/537.36',
-      ipaddress: '3.70.73.142',
-      location: 'United States',
-      date: subDays(new Date(), 2).getTime()
-    },
-    {
-      id: 2,
-      browser: 'Chrome/36.0.1985.67',
-      ipaddress: '138.13.136.179',
-      location: 'China',
-      date: subDays(new Date(), 6).getTime()
-    },
-    {
-      id: 3,
-      browser: 'Googlebot/2.1',
-      ipaddress: '119.229.170.253',
-      location: 'China',
-      date: subHours(new Date(), 15).getTime()
-    },
-    {
-      id: 4,
-      browser: 'AppleWebKit/535.1',
-      ipaddress: '206.8.99.49',
-      location: 'Philippines',
-      date: subDays(new Date(), 4).getTime()
-    },
-    {
-      id: 5,
-      browser: 'Mozilla/5.0',
-      ipaddress: '235.40.59.85',
-      location: 'China',
-      date: subWeeks(new Date(), 3).getTime()
+  const onSubmit = async(event: { preventDefault: () => void; }) => {
+    console.log("ENTROU NO SUBMIT")
+    //se aprovada inicia processo multisig
+    console.log("activityStatus", activityStatus)
+    if (activityStatus == '3'){
+      approveActivityMultisig(data.owner, data.tokenId);
     }
-  ];
+    else{
+      //se nao, atualiza status para "Available"
+    }
+    
+  };
+
+  const handleChangeStatus = (event) => {
+    console.log("ENTROU NO HANDLE CHANGE STATUS")
+    setActivityStatus(event.target.value);
+  };
 
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Box pb={2}>
-          <Typography variant="h3">Social Accounts</Typography>
+          <Typography variant="h3">{data && data.name}</Typography>
           <Typography variant="subtitle2">
-            Manage connected social accounts options
+            {data && data.owner}
           </Typography>
         </Box>
         <Card>
-          <List>
-            <ListItem sx={{ p: 3 }}>
-              <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarWrapper src="/static/images/logo/google.svg" />
-              </ListItemAvatar>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Google"
-                secondary="A Google account hasn’t been yet added to your account"
-              />
-              <Button color="secondary" size="large" variant="contained">
-                Connect
-              </Button>
-            </ListItem>
-          </List>
+          <Box
+              component="form"
+              sx={{
+                '& .MuiTextField-root': { m: 1 }
+              }}              
+          >
+            <List>
+              <ListItem sx={{ p: 3 }}>
+                <ListItemAvatar sx={{ pr: 2 }}>
+                  <AvatarSuccess>
+                    <DoneTwoToneIcon />
+                  </AvatarSuccess>
+                </ListItemAvatar>
+                <ListItemText>
+                <TextField sx={{ pr: 2 }}
+                  id="outlined-select-currency-native"
+                  select
+                  fullWidth
+                  label='Status of activity'
+                  value={data && data.status ? data.status : activityStatus}
+                  onChange={handleChangeStatus}
+                  SelectProps={{
+                    native: true
+                  }}
+                >
+                  <option key="0" value="Select">
+                    Select
+                  </option>
+                {activityStatusList.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+                </TextField>
+                </ListItemText>
+                <Button onClick={onSubmit} size="large" variant="contained">
+                  Confirm
+                </Button>
+              </ListItem>
+            </List>
+          </Box>          
         </Card>
       </Grid>
       <Grid item xs={12}>
@@ -150,9 +179,9 @@ function MintInfoTab() {
           <List>
             <ListItem sx={{ p: 3 }}>
               <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarSuccess>
-                  <DoneTwoToneIcon />
-                </AvatarSuccess>
+                <AvatarFired>
+                  <LocalFireDepartmentIcon />
+                </AvatarFired>
               </ListItemAvatar>
               <ListItemText
                 primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
@@ -160,31 +189,11 @@ function MintInfoTab() {
                   variant: 'subtitle2',
                   lineHeight: 1
                 }}
-                primary="Facebook"
-                secondary="Your Facebook account has been successfully connected"
+                primary="Burn Activity"
+                secondary="The activity will be deleted and NFT burned."
               />
               <ButtonError size="large" variant="contained">
-                Revoke access
-              </ButtonError>
-            </ListItem>
-            <Divider component="li" />
-            <ListItem sx={{ p: 3 }}>
-              <ListItemAvatar sx={{ pr: 2 }}>
-                <AvatarSuccess>
-                  <DoneTwoToneIcon />
-                </AvatarSuccess>
-              </ListItemAvatar>
-              <ListItemText
-                primaryTypographyProps={{ variant: 'h5', gutterBottom: true }}
-                secondaryTypographyProps={{
-                  variant: 'subtitle2',
-                  lineHeight: 1
-                }}
-                primary="Twitter"
-                secondary="Your Twitter account was last syncronized 6 days ago"
-              />
-              <ButtonError size="large" variant="contained">
-                Revoke access
+                Burn activity
               </ButtonError>
             </ListItem>
           </List>

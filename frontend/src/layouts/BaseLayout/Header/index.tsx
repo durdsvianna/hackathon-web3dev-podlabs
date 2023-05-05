@@ -76,7 +76,7 @@ function Header({data}) {
           alignItems="center"
           spacing={2}
         >
-          <HeaderMenu data={data} />
+          <HeaderMenu/>
         </Stack>
         { data ? (
           <Box display="flex" alignItems="center">
