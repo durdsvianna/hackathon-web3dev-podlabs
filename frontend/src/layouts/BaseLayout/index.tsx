@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import { useAccount } from 'wagmi'
+import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
 
 const Loader = (Component) => (props) =>
   (
@@ -24,6 +25,7 @@ interface BaseLayoutProps {
 const BaseLayout: FC<BaseLayoutProps> = () => {
   const theme = useTheme();
   const { data } = useAccount();
+  const { checkLeader, checkMember } = useErc721Contract();
 
   return (
     <>
@@ -55,7 +57,7 @@ const BaseLayout: FC<BaseLayoutProps> = () => {
         }}
       >
         <Header data={data} />
-        { data ? (  
+        { data && checkMember ? (  
           <Box
             sx={{
             position: 'relative',

@@ -67,7 +67,7 @@ const ListWrapper = styled(Box)(
 function HeaderMenu({data}) {
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-  const { checkLeader } = useErc721Contract();
+  const { checkLeader, checkMember } = useErc721Contract();
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -97,8 +97,8 @@ function HeaderMenu({data}) {
             <img src="../../../web3dev.png" alt="Web3Dev" />
           </ListItem>          
           {
-            !checkLeader ?
-            data &&  (<>
+            data &&(
+            <>
               <ListItem
                 classes={{ root: 'MuiListItem-indicators' }}
                 button
@@ -131,8 +131,7 @@ function HeaderMenu({data}) {
                 />
               </ListItem>
             </>
-            ):
-            <div>Teste Erro</div>
+            )
           }
         </List>
       </ListWrapper>
