@@ -12,24 +12,14 @@ import {
   Grid,
 } from '@mui/material';
 
-import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
-
-const AvatarPrimary = styled(Avatar)(
-  ({ theme }) => `
-        background: ${theme.colors.primary.lighter};
-        color: ${theme.colors.primary.main};
-        width: ${theme.spacing(7)};
-        height: ${theme.spacing(7)};
-  `
-);
-
-function DetailsDescriptionNft({ data, nftId }) {
+function DetailsDescriptionNft({ data, loading, nftId }) {
   const theme = useTheme();
 
   return (
     <>
-      <Grid item xs={12} sm={6} md={6} lg={4}>
-        {data[nftId] && (
+    {!loading ? 
+      <Grid item xs={12} sm={6} md={6} lg={6}>
+      {data[nftId] && (
           <Card sx={{ ml: 4 }}>
             <CardHeader title={data[nftId].name} />
             <Divider />
@@ -76,7 +66,8 @@ function DetailsDescriptionNft({ data, nftId }) {
           </Card>
         )}
       </Grid>
-
+  : <div>Error Loading</div>  
+  }
     </>
   );
 }

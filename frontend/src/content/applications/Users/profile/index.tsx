@@ -10,8 +10,7 @@ import UserProfile  from 'src/components/User/UserProfile';
 import EditProfile from './EditProfile';
 import { ChangeEvent, useState } from 'react';
 import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
-import ActivityExpansiveDetailsNft from 'src/components/Nfts/ActivityExpansiveDetailsNft';
-import ActivityExpansiveDescriptionDetailsNft from 'src/components/Nfts/ActivityExpansiveDescriptionDetailsNft';
+
 const TabsWrapper = styled(Tabs)(
   () => `
     .MuiTabs-scrollableX {
@@ -39,8 +38,6 @@ function ManagementUserProfile() {
       <Helmet>
         <title>Web3Dev User Profile</title>
       </Helmet>
-      <ActivityExpansiveDetailsNft data = {data} loading={loading}/>
-      <ActivityExpansiveDescriptionDetailsNft data = {data}/> 
       <Container sx={{ mt: 3 }} maxWidth="lg">
         <Grid
           container

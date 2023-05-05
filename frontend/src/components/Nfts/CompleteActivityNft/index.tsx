@@ -1,25 +1,27 @@
-import { Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
-import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
-import SuspenseLoader from 'src/components/SuspenseLoader';
-// import ActivityExpansiveDescriptionDetailsNft from '../ActivityExpansiveDescriptionDetailsNft';
-// import ActivityExpansiDetailsNft from './'
-export default function CompleteActivityNft({ data, loading }) {
+import UserHeader from 'src/components/User/UserHeader';
+import AlertDialog from 'src/components/Modal/AlertDialog'
+import { useState } from 'react';
+import ActivityDetailsNft from 'src/components/Nfts/ActivityDetailsNft'
+
+// Alert Dialog Param
+const textButton = 'Completar Atividade'
+const textAlertDialog = 'Atividade Feita ?'
+const textDialog = 'Tem certeza que deseja completar a atividade ?'
+
+export default function CompleteActivityNft({ user, data, loading, tokenId }) {
+
+  const [buttonState, setButtonState] = useState(false);
+
+  function handleButtonClick() {
+    setButtonState(true);
+    // Chamar função
+  }
 
   return (
     <>
-        <Box
-          sx={{
-            marginTop: 4,
-            width: 1,
-          }}>
-          <Grid container spacing={10}>
-            <Button></Button>
-            {/* <ActivityExpansiveDescriptionDetailsNft />
-            <ActivityExpansiveDescriptionDetailsNft /> */}
-          </Grid>
-        </Box>
-        <SuspenseLoader />
-      <Button></Button>
+      <UserHeader user={user}/>
+      <AlertDialog textButton={textButton} textDialog={textDialog} textAlertDialog={textAlertDialog} handleButtonClick={handleButtonClick} buttonState={buttonState}/>
+      <ActivityDetailsNft data={data} loading={loading} nftId={tokenId}/>
     </>
   );
 }

@@ -13,6 +13,7 @@ function ManagementActivity() {
   const { data, loading } = useErc721Contract();
   const user = UserProfile();
 
+  const activityOwner = '1' // TO DO Pegar TokenID do contrato e setar direto no useErc721Contract() como activityOwner
   return (
     <>
       <Helmet>
@@ -27,11 +28,11 @@ function ManagementActivity() {
           spacing={3}
         >
           <Grid item xs={12} md={12}>
-            <ProfileCover user={user} />
+            {/* <ProfileCover user={user} /> */}
           </Grid>          
 
           <Grid item xs={12} md={12}>
-            <CompleteActivityNft data={data} loading={loading} />
+            <CompleteActivityNft user={user} data={data} loading={loading} tokenId={activityOwner} />
           </Grid>
         </Grid>
       </Container>

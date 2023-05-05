@@ -37,7 +37,7 @@ export default function ActivityDetailsNft({ data, loading, nftId}) {
                       )}
 
                     </Card>
-                    <DetailsDescriptionNft data={data} nftId={tokenId} />
+                    <DetailsDescriptionNft data={data} loading={loading} nftId={tokenId} />
 
                   </Grid>
                 </Card>
