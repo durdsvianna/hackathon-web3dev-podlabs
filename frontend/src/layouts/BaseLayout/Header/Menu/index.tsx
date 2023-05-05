@@ -7,11 +7,14 @@ import {
   MenuItem,
   Typography
 } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
-import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
+import { useContractAccessControl } from 'src/utils/Web3Erc721Utils';
+import { useAccount } from 'wagmi';
+import SuspenseLoader from 'src/components/SuspenseLoader';
+import { isAddress } from 'ethers/lib/utils';
 
 const ListWrapper = styled(Box)(
   ({ theme }) => `
@@ -64,10 +67,11 @@ const ListWrapper = styled(Box)(
 `
 );
 
-function HeaderMenu({data}) {
+function HeaderMenu() {
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-  const { checkLeader } = useErc721Contract();
+  const { data: accountData } = useAccount();
+  const { loading, setLoading, isLeader, checkLeader } = useContractAccessControl();
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -76,6 +80,26 @@ function HeaderMenu({data}) {
   const handleClose = (): void => {
     setOpen(false);
   };
+
+  const  validateLeader = async ()  => {
+    setLoading(true);
+    checkLeader(accountData?.address);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+      
+    if (!loading) 
+      validateLeader();
+
+  });
+
+  useEffect(() => {
+    
+    console.log("loading", loading)
+    console.log("isLeader", isLeader)
+    
+  }, [loading, isLeader]);
 
   return (
     <>
@@ -96,9 +120,10 @@ function HeaderMenu({data}) {
           >
             <img src="../../../web3dev.png" alt="Web3Dev" />
           </ListItem>          
-          {
-            !checkLeader ?
-            data &&  (<>
+          { loading ? <SuspenseLoader />
+           :
+            isLeader ?
+            accountData &&  (<>
               <ListItem
                 classes={{ root: 'MuiListItem-indicators' }}
                 button
@@ -131,8 +156,9 @@ function HeaderMenu({data}) {
                 />
               </ListItem>
             </>
-            ):
-            <div>Teste Erro</div>
+            )
+            :
+            <></>
           }
         </List>
       </ListWrapper>

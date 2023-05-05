@@ -1,11 +1,168 @@
 import { useState, useEffect, SetStateAction } from 'react';
-import { useContract, useSigner } from 'wagmi';
+import { useContract, useFeeData, useSigner } from 'wagmi';
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import { NftOrder } from 'src/models/nft_order';
 import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { useWalletAddress } from 'src/utils/Web3Utils';
+import { number } from 'prop-types';
+import { ethers, Signer } from 'ethers';
+
+
+export function useContractApprovementActivity() {
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null)
+
+  let getNextNonce = async (contract) => (await contract.nonce()).add(1);
+        
+  let getDigest = async (tokenId, nonce, amount, to) => {
+    let txn = {tokenId, amount, to};
+    let encoded = ethers.utils.defaultAbiCoder.encode(["tuple(uint256,address)"],  [[txn.tokenId, txn.amount, txn.to]]);
+    let encodedWithNonce = ethers.utils.solidityPack(["bytes", "uint256"], [encoded, nonce]);
+      
+    let digest= ethers.utils.keccak256(encodedWithNonce);
+    return digest;
+  }
+
+  let subjectMethod = async (signer, nonce, amount, tokenId, to, signatures) => {
+    let txn = {tokenId, amount, to};
+    await contract.connect(signer).approveActivity(contract.address, txn, nonce, signatures, {gasPrice: 8});
+  }
   
+  async function approveActivityMultisig(to: string, tokenId: number) {
+    console.log("ENTROU NO HOOK")
+    setLoading(true);
+    if (contract != null) {
+      try {          
+        const amount = 2;
+        let nonce = await getNextNonce(contract);
+        let digest = await getDigest(tokenId, nonce, amount, to);
+        let signers = [ signer];
+        signers.sort((x, y) => x.getAddress() > y.getAddress()? 1: -1);
+        let signatures = [];
+        for (let signer of signers) {
+          let sign = await signer.signMessage (ethers.utils.arrayify(digest)) ;
+          signatures.push(sign);
+        }
+
+        await subjectMethod(signer, nonce, amount, tokenId, to, signatures);
+            
+        //console.log('Check Leader  = ', leader);  
+        //setLoading(false);
+        
+      } catch (error) {
+        console.log("errors", error);
+        setErrors(error);
+        setLoading(false);        
+      } 
+    }
+  }
+
+  return {loading, setLoading, errors, approveActivityMultisig }
+}
+
+export function useContractAccessControl() {
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const [loading, setLoading] = useState(false);
+  const [ isMember, setIsMember ] = useState<boolean>(false);
+  const [ isLeader, setIsLeader ] = useState<boolean>(false);
+
+  async function checkLeader(address: string): Promise<void> {
+    if (contract != null) {
+      try {          
+        const leader:boolean = await contract.checkAddressLeader(address); 
+        setIsLeader(leader);
+        console.log('Check Leader  = ', leader);          
+      } catch (error) {
+        console.log("errors", error);
+        return;
+      } 
+    }
+  }
+
+  return { loading, setLoading, isLeader, checkLeader }
+}
+
+export function useContractLoadTokenId(){
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();
+  const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
+  const [loading, setLoading] = useState(false);
+  const [ data, setData ] = useState<NftOrder>(null);
+
+  async function loadNft (tokenIdstr: string): Promise<void> {
+    let tokenId = -1;
+    if (tokenIdstr && tokenIdstr.length > 0){
+      tokenId = +tokenIdstr;
+    }
+    console.log("tokenId", tokenId)
+    if (contract != null && tokenId >= 0) {
+      try {
+        const uri = await contract.tokenURI(tokenId);
+        const nftOwner = await contract.ownerOf(tokenId); 
+        console.log("uri", uri)
+        const activityJson = JSON.parse(await downloadJsonFromPinata(ipfsGateway+uri).then(result => result));
+        let rewards:number 
+        activityJson.attributes.forEach((attr: { trait_type: string; value: number; }) => {
+          if (attr.trait_type == 'Rewards')
+            rewards = attr.value;
+        })            
+
+        const nftOrder: NftOrder = 
+          {
+            owner: nftOwner,
+            tokenId: tokenId,
+            name: activityJson.name,
+            description: activityJson.description,
+            image: ipfsGateway + activityJson.image,
+            status: 'Concluido',
+            attributes: 'Comunidade',
+            creatorActivity: 'Douglas',
+            tag: 'tag#3',
+            dateLimit: 'Dezembro',
+            bounty: rewards,
+            difficulty: 'Avancado',
+          };         
+        console.log("nftOrder", nftOrder);    
+        setData(nftOrder);        
+      } catch (error) {
+        console.log("error", error);
+        return;
+      }
+    }
+  }
+
+  return { data, loading, setLoading, loadNft}
+}
+
 export function useErc721Contract() {
     const [data, setData] = useState<NftOrder[]>([]);
     const [lastToken, setLastToken] = useState<NftOrder>(null);
@@ -90,39 +247,6 @@ export function useErc721Contract() {
       }
     }
 
-    async function loadListNfts() {
-      let lastsUriMints: [{tokenId: number; ipfsHash: string }] = [{tokenId: -1, ipfsHash: ''}];
-      if (contract != null) {
-        try {          
-          const nftQuantity = await contract.idCounter();            
-          let max = nftQuantity.toNumber();
-          for(let i = max ; i > 0; i--) {             
-            const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
-            const ipfsHash = uri.split("/")[4]; 
-            lastsUriMints.push({
-              tokenId: nftQuantity.toNumber()-i, 
-              ipfsHash: ipfsHash
-            })
-          }
-          console.log("lastsUriMints => result", lastsUriMints);
-        } catch (error) {
-          console.log("error", error);
-        }          
-
-        try {          
-          const pinnedFiles = downloadListFromPinata();
-          pinnedFiles.then(result => {
-            console.log("pinnedFiles => result", result)
-            lastsUriMints.forEach(tokenUri => {
-
-            })
-          })
-        } catch (error) {
-          console.log("error", error);
-        }
-      }
-    }
-
     async function loadNfts () {  
       setLoading(true);    
       if (contract != null) {
@@ -191,43 +315,12 @@ export function useErc721Contract() {
         }                       
       }
     }
-  
-    async function loadCheckAddress() {
-
-      const { walletAddress } = useWalletAddress();
-      const wallet = walletAddress();
-
-      setLoading(true);
-      if (contract != null) {
-        try {          
-          const leader:boolean = await contract.checkAddressLeader(wallet); 
-          const member:boolean = await contract.checkAddressMember(wallet);  
-          if(leader === true){
-            setCheckLeader(true)
-          }else{
-            setCheckLeader(false)
-          }
-          if(member === true){
-            setCheckMember(true)
-          }else{  
-            setCheckMember(false)
-          }
-          console.log('Address Account', wallet);
-          console.log('Check Leader  = ', checkLeader);  
-          console.log('Check Member  = ', checkMember);      
-        } catch (error) {
-          console.log("errors", error);
-          }          
-      }
-    }    
 
     useEffect(() => {      
         loadNfts();
         loadLastNft();
-        //loadListNfts();
-        loadCheckAddress();
         balanceOf(process.env.REACT_APP_DAPP_CONTRACT);
     }, []);
 
-    return { data, loading, counter, lastToken, balance, checkMember, checkLeader };
+    return { data, loading, setLoading, counter, lastToken, balance, checkMember, checkLeader };
   }

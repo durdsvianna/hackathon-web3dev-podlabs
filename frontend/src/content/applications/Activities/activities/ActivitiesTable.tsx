@@ -114,6 +114,11 @@ const ActivitiesTable: FC<RecenNftsTableProps> = ({ nfts }) => {
     }
   ];
 
+
+  const handleOnClickEditActivity = (event, tokenId) => {
+    window.location.href = "/dapp/activity-settings/edit/"+tokenId;
+  };
+
   const handleStatusChange = (e: ChangeEvent<HTMLInputElement>): void => {
     let value = null;
 
@@ -301,8 +306,10 @@ const ActivitiesTable: FC<RecenNftsTableProps> = ({ nfts }) => {
                     {/* {getStatusLabel(nft.status)} */}
                   </TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Edit Order" arrow>
-                      <IconButton
+                    <Tooltip title="Edit Activity" arrow>
+                      <IconButton onClick={(event) =>
+                          handleOnClickEditActivity(event, nft.tokenId)
+                        }
                         sx={{
                           '&:hover': {
                             background: theme.colors.primary.lighter
@@ -315,8 +322,8 @@ const ActivitiesTable: FC<RecenNftsTableProps> = ({ nfts }) => {
                         <EditTwoToneIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Delete Order" arrow>
-                      <IconButton
+                    <Tooltip title="Delete Activity" arrow>
+                      <IconButton 
                         sx={{
                           '&:hover': { background: theme.colors.error.lighter },
                           color: theme.palette.error.main

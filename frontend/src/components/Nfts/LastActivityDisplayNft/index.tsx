@@ -9,6 +9,10 @@ export default function LastActivityDisplayNft( {lastToken}) {
     const handleButtonActivityDetails = () => {
       window.location.href = "/dapp/activity-details";
     };
+
+    const handleButtonActivityEdit = () => {
+      window.location.href = "/dapp/activity-settings/edit/"+lastToken.tokenId;
+    };
     
     return(
       <>
@@ -48,7 +52,7 @@ export default function LastActivityDisplayNft( {lastToken}) {
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small">Share</Button>
+                <Button size="small" onClick={handleButtonActivityEdit}>Edit</Button>
                 <Button size="small" onClick={handleButtonActivityDetails}>Activity Details</Button>
               </CardActions>
             </Card>

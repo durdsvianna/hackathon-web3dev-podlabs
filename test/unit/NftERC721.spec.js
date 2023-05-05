@@ -292,8 +292,8 @@ const ether = (amount) => {
         let getNextNonce = async (contract) => (await contract.nonce()).add(1);
         
         let getDigest = async (nonce, amount, to) => {
-          let txn = {amount, to};
-          let encoded = ethers.utils.defaultAbiCoder.encode(["tuple(uint256,address)"],  [[txn.amount, txn.to]]);
+          let txn = {tokenId, amount, to};
+          let encoded = ethers.utils.defaultAbiCoder.encode(["tuple(uint256,address)"],  [[txn.tokenId, txn.amount, txn.to]]);
           let encodedWithNonce = ethers.utils.solidityPack(["bytes", "uint256"], [encoded, nonce]);
       
           let digest= ethers.utils.keccak256(encodedWithNonce);
