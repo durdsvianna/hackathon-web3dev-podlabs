@@ -4,8 +4,6 @@ import DetailsDescriptionNft from 'src/content/applications/Activities/activity-
 
 export default function ActivityDetailsNft({ data, loading, nftId}) {
 
-  const tokenId = localStorage.getItem('tokenId');
-  console.log('tokenId = ', tokenId);
 
   return (
     <>
@@ -37,7 +35,7 @@ export default function ActivityDetailsNft({ data, loading, nftId}) {
                       )}
 
                     </Card>
-                    <DetailsDescriptionNft data={data} loading={loading} nftId={tokenId} />
+                    <DetailsDescriptionNft data={data} loading={loading} nftId={nftId} />
 
                   </Grid>
                 </Card>

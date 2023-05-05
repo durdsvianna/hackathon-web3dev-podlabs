@@ -8,7 +8,7 @@ const textButton = 'Completar Atividade'
 const textAlertDialog = 'Atividade Feita ?'
 const textDialog = 'Tem certeza que deseja completar a atividade ?'
 
-export default function CompleteActivityNft({ user, data, loading, tokenId }) {
+export default function CompleteActivityNft({ user, data, loading, nftId }) {
 
   const [buttonState, setButtonState] = useState(false);
 
@@ -21,7 +21,7 @@ export default function CompleteActivityNft({ user, data, loading, tokenId }) {
     <>
       <UserHeader user={user}/>
       <AlertDialog textButton={textButton} textDialog={textDialog} textAlertDialog={textAlertDialog} handleButtonClick={handleButtonClick} buttonState={buttonState}/>
-      <ActivityDetailsNft data={data} loading={loading} nftId={tokenId}/>
+      <ActivityDetailsNft data={data} loading={loading} nftId={nftId}/>
     </>
   );
 }

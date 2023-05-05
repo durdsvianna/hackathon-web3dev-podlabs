@@ -1,7 +1,6 @@
 import { Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
 import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
 import SuspenseLoader from 'src/components/SuspenseLoader';
-import DetailsNft from 'src/content/applications/Activities/activity-details/DetailsDescriptionNft';
 import ActivityExpansiveDescriptionDetailsNft from '../ActivityExpansiveDescriptionDetailsNft';
 
 export default function ActivityExpansiveDetailsNft({ data, loading }) {
