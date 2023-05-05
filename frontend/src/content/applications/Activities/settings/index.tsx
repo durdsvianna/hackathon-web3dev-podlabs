@@ -66,7 +66,7 @@ function ManagementActivitySettings() {
       {loading 
       ? <SuspenseLoader />
       :
-        data == null ? <SuspenseLoader />
+        data == null && (tokenId!=null && +tokenId >=0) ? <SuspenseLoader />
         :
         (
           <Container maxWidth="lg">
