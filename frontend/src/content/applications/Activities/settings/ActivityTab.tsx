@@ -1,4 +1,4 @@
-import { useState, forwardRef, useCallback } from 'react';
+import { useState, forwardRef, useCallback, useEffect } from 'react';
 import {useDropzone} from 'react-dropzone';
 import bgimage from 'src/images/image.svg';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
@@ -29,6 +29,7 @@ import { useContract, useAccount, useEnsName, useSigner, useProvider } from 'wag
 import NftERC721Artifact from "src/contracts/NftERC721.json";
 import contractAddress from "src/contracts/contract-nfterc721-address.json";
 import UserProfile  from 'src/components/User/UserProfile';
+import SuspenseLoader from 'src/components/SuspenseLoader';
 
 const CardActionsWrapper = styled(CardActions)(
   ({ theme }) => `
@@ -91,7 +92,7 @@ const activityInitialStatus = [
   },
   {
     value: '2',
-    label: 'Scheduled'
+    label: 'Available'
   }
 ];
 const activityDificulties = [
@@ -121,7 +122,7 @@ const schema = yup.object({
   description: yup.string().required('Campo obrigatório.'),
 }).required();
 
-function ActivityTab() {
+function ActivityTab({data}) {
   //const [ethAmount, setEthAmount] = useState<number>(0);
   const user = UserProfile();
   const creator = user.name;
@@ -198,7 +199,7 @@ function ActivityTab() {
       value: creator
     }];
 
-    //armazena imagem IPS
+    //armazena imagem IPFS
     try {
       const ipfsImageResult = await uploadFileToPinata(imageFile);        
       setUploadFileResult(ipfsImageResult); 
@@ -288,6 +289,12 @@ function ActivityTab() {
     noKeyboard : true}
   );
 
+  useEffect(() => {
+    
+    console.log("data", data)
+    
+  }, [data]);
+
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
       <Snackbar open={openInformartion} autoHideDuration={6000} onClose={handleCloseSnackInformation}>
@@ -309,35 +316,50 @@ function ActivityTab() {
             }}
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div  {...getRootProps({className :'md:h-52 sm:h-44 h-auto bg-light-grey border-2 border-light-blue border-dashed rounded-md'})}>
-          <CardCover >
-            <CardMedia
-              sx={{ minHeight: 280 }}
-              image={imageCoverLoaded ? url : imageCover}
-              title="Activity NFT"
-            />      
-            <CardCoverAction>
-              <input {...getInputProps({name : 'image'})} id="change-cover" multiple />
-              <p className='text-slate-400 md:text-md text-center mt-4 text-sm'>Drag & Drop your image here</p>
-              <label htmlFor="change-cover">
-                <Button
-                  startIcon={<UploadTwoToneIcon />}
-                  variant="contained"
-                  component="span"
-                >
-                  Change image
-                </Button>
-              </label>
-            </CardCoverAction>
-          </CardCover> 
-        </div>
-            
+          {
+            data && data.tokenId >= 0
+            ? 
+              (
+                <CardCover >
+                  <CardMedia
+                    sx={{ minHeight: 280 }}
+                    image={data.image}
+                    title="Activity NFT"
+                  />      
+                </CardCover>               
+              )
+            : (
+              <div  {...getRootProps({className :'md:h-52 sm:h-44 h-auto bg-light-grey border-2 border-light-blue border-dashed rounded-md'})}>
+                <CardCover >
+                  <CardMedia
+                    sx={{ minHeight: 280 }}
+                    image={imageCoverLoaded ? url : imageCover}
+                    title="Activity NFT"
+                  />      
+                  <CardCoverAction>
+                    <input {...getInputProps({name : 'image'})} id="change-cover" multiple />
+                    <p className='text-slate-400 md:text-md text-center mt-4 text-sm'>Drag & Drop your image here</p>
+                    <label htmlFor="change-cover">
+                      <Button
+                        startIcon={<UploadTwoToneIcon />}
+                        variant="contained"
+                        component="span"
+                      >
+                        Change image
+                      </Button>
+                    </label>
+                  </CardCoverAction>
+                </CardCover> 
+              </div>
+            )
+          }                      
         <Box p={3}>
           <Typography variant="h2" sx={{ pb: 1 }}>
             Create your activity quickly and easily
           </Typography>
         </Box>
         <Divider />
+        
         <CardActionsWrapper
           sx={{
             display: { xs: 12, md: 3 },
@@ -345,6 +367,7 @@ function ActivityTab() {
             justifyContent: 'space-between'
           }}
         >
+
           <Box
             sx={{
               '& .MuiTextField-root': { m: 1 }
@@ -353,36 +376,42 @@ function ActivityTab() {
             <div>
               <TextField fullWidth {...register("title")}                
                 id="outlined-required"
-                label="Title"
+                label={data && data.name ? '' : 'Title'}
                 onChange={handleChangeTitle}
-                placeholder="Title"
+                placeholder={data && data.name ? '' : 'Title'}
+                disabled={data && data.tokenId >= 0 ? true : false}
+                value={data && data.name}
               />
               <p>{errors.title?.message}</p>
             </div>
             <div>
               <TextField fullWidth {...register("description")}                
                 id="outlined-required"
-                label="Description"
+                label={data && data.description ? '' : 'Description'}
                 onChange={handleChangeDescription}
-                placeholder="A full description about the ativity."
+                placeholder={data && data.description ? '' : 'A full description about the ativity.'}
                 multiline
                 rows="6"
+                disabled={data && data.tokenId >= 0 ? true : false}
                 maxRows="18"
+                value={data && data.description}
               />
               <p>{errors.description?.message}</p>
             </div>                   
             <div>        
               <DatePicker
-                label="Expire Date"
-                value={expireDate}
+                disabled={data && data.tokenId >= 0 ? true : false}
+                label={data && data.dateLimit ? '' : 'Expire Date'}
+                value={data && data.dateLimit ? data.dateLimit : expireDate}
                 onChange={(newValue) => setExpireDate(newValue)}
               />      
               <TextField
                 id="outlined-select-currency-native"
                 select
-                label="Status of activity"
-                value={activityStatus}
+                label={data && data.status ? '' : 'Status of activity'}
+                value={data && data.status ? data.status : activityStatus}
                 onChange={handleChangeStatus}
+                disabled={data && data.tokenId >= 0 ? true : false}
                 SelectProps={{
                   native: true
                 }}
@@ -397,8 +426,9 @@ function ActivityTab() {
               <TextField
                 id="outlined-select-currency-native"
                 select
-                label="Dificulty of activity"
-                value={activityDificulty}
+                label={data && data.difficulty ? '' : 'Dificulty of activity'}
+                value={data && data.difficulty ? data.difficulty : activityDificulty}
+                disabled={data && data.tokenId >= 0 ? true : false}
                 onChange={handleChangeDificulty}
                 SelectProps={{
                   native: true
@@ -410,17 +440,18 @@ function ActivityTab() {
                 </option>
               ))}
               </TextField>
-
               <TextField 
                 id="outlined-required"
-                label="Creator"
+                label={data && data.creatorActivity ? '' : 'Creator'}
                 disabled
-                value={creator}
-              />  
+                value={data && data.creatorActivity ? data.creatorActivity : creator}
+              /> 
+
               <TextField {...register("valueReward")}
-                  label="Reward ($)"
-                  value={valueReward}
+                  label={data && data.bounty ? '' : 'Reward ($)'}
+                  value={data && data.bounty ? data.bounty : valueReward}
                   onChange={handleChangeReward}
+                  disabled={data && data.tokenId >= 0 ? true : false}
                   InputProps={{
                     inputComponent: NumericFormatCustom as any,
                   }}
@@ -429,22 +460,28 @@ function ActivityTab() {
             </div>          
           </Box>
         </CardActionsWrapper>
-        <CardActionsWrapper
-          sx={{
-            display: { xs: 'block', md: 'flex' },
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >        
-          <Box>
-            
-          </Box>
-          <Box sx={{ mt: { xs: 2, md: 0 } }}>
-            <Button type="submit" variant="contained">
-              Create Activity
-            </Button>
-          </Box>
-        </CardActionsWrapper>
+         
+        
+        {data && data.tokenId ? <></>
+        : 
+        (
+          <CardActionsWrapper
+            sx={{
+              display: { xs: 'block', md: 'flex' },
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >        
+            <Box>              
+            </Box>
+            <Box sx={{ mt: { xs: 2, md: 0 } }}>
+              <Button type="submit" variant="contained">
+                Create Activity
+              </Button>
+            </Box>
+          </CardActionsWrapper>
+        )
+        }        
         </Box>        
       </Card>
     </Stack>    

@@ -121,6 +121,10 @@ const routes: RouteObject[] = [
         element: <ActivitySettings />
       },
       {
+        path: '/dapp/activity-settings/edit/:tokenId',
+        element: <ActivitySettings />
+      },
+      {
         path: '/dapp/profile',
         element: <UserProfile />
       },
