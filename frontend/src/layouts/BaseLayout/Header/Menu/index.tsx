@@ -73,6 +73,7 @@ function HeaderMenu() {
   const { data: accountData } = useAccount();
   const { loading, setLoading, isLeader, checkLeader } = useContractAccessControl();
 
+
   const handleOpen = (): void => {
     setOpen(true);
   };

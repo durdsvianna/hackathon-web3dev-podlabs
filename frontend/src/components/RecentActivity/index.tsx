@@ -21,11 +21,7 @@ const AvatarPrimary = styled(Avatar)(
 `
 );
 
-// TODO pegar quantidade total de NFTS de atividades completos
-let completeActivity  = 10;
-let totalBounty = 100; // DOLÁR
-
-function RecentActivity() {
+function RecentActivity({data}) {
   const theme = useTheme();
 
   return (
@@ -46,9 +42,9 @@ function RecentActivity() {
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Concluidas
+                Concluidas {console.log('data status',)}
               </Typography>
-              <Typography variant="h2">{completeActivity}</Typography>
+              <Typography variant="h2">{data.status}</Typography>
             </Box>
 
           </Box>
@@ -72,7 +68,7 @@ function RecentActivity() {
               >
                 Total
               </Typography>
-              <Typography variant="h2">${totalBounty}</Typography>
+              <Typography variant="h2">${data.bounty}</Typography>
             </Box>
 
           </Box>

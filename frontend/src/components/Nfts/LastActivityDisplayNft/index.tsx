@@ -1,8 +1,4 @@
 import {Card, CardActions, CardActionArea, CardContent, CardMedia, Button,Tooltip, Typography, Box, Grid, Avatar, styled, alpha} from '@mui/material';
-import { AddTwoTone, TrendingUp } from '@mui/icons-material';
-import { Key, ReactChild, ReactFragment, ReactPortal, useEffect, useState } from 'react';
-import SuspenseLoader from 'src/components/SuspenseLoader';
-import { useShortenAddressOrEnsName } from 'src/utils/Web3Utils';
 
 export default function LastActivityDisplayNft( {lastToken}) {
 

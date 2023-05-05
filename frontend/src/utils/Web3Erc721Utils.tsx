@@ -171,6 +171,7 @@ export function useErc721Contract() {
     const [loading, setLoading] = useState(false);
     const [checkMember, setCheckMember] = useState(true);
     const [checkLeader, setCheckLeader] = useState(false);
+    // const [activityOwner, setActivityOwner] = useState('')
 
     const contractReadConfig = {
       addressOrName: contractAddress.NftERC721,
@@ -184,6 +185,25 @@ export function useErc721Contract() {
     const contract = useContract(contractConfig);
     const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();
     const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
+
+    // function getActivityOwnerAddress(): void {
+
+    //   const { walletAddress } = useWalletAddress();
+    //   const wallet = walletAddress();
+
+    //   if (contract != null) {
+    //     try {
+    //       let activityOwnerAddress = contract.getActivityOwner(wallet);
+    //       console.log("activityOwner", activityOwnerAddress);
+    //       activityOwnerAddress.then((activity:string) => {
+    //           console.log("Activity Owner", activity);
+    //           setActivityOwner(activity);      
+    //         });
+    //     } catch (error) {
+    //       console.log('error', error);
+    //     }
+    //   }            
+    // }
 
     function balanceOf(to: string): void {
       if (contract != null) {
@@ -320,6 +340,7 @@ export function useErc721Contract() {
         loadNfts();
         loadLastNft();
         balanceOf(process.env.REACT_APP_DAPP_CONTRACT);
+        // getActivityOwnerAddress()
     }, []);
 
     return { data, loading, setLoading, counter, lastToken, balance, checkMember, checkLeader };

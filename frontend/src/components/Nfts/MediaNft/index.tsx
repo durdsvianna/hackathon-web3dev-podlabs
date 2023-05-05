@@ -1,12 +1,25 @@
 import {Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
-import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
+import { Key, ReactChild, ReactFragment, ReactPortal, useState } from 'react';
 import SuspenseLoader from 'src/components/SuspenseLoader';
 
+
 export default function MediaNft({data, loading}) {
+
+  const [id, setId] = useState('');
+  const [tokenId, setTokenId] = useState(1024);
+  console.log('TOKEN ID = ', tokenId);
+
+  const handleButtonNftDetails = (tokenId) => {
+    setTokenId(tokenId);
+    localStorage.setItem('tokenId', tokenId);
+    console.log('token id =================== ', tokenId)
+    window.location.href = "/dapp/activity-details";
+  }
 
     return (
       <>
       {console.log('STATUS LOADING MEDIA NFT INITIAL = ', loading)}
+      {console.log('DATA NT MEDIA', data)}
       {!loading
       ?
       <Box 
@@ -14,29 +27,29 @@ export default function MediaNft({data, loading}) {
           marginTop: 4,
         }}>
         <Grid container spacing={2}>
-          {data.map((nftData: { bounty: number; image: string; name: boolean | ReactChild | ReactFragment | ReactPortal; description: boolean | ReactChild | ReactFragment | ReactPortal; }, index: Key) => (
+          {data.map((data, index) => (
             <Grid item xs={12} sm={6} md={6} lg={4} key={index}>
               <Card sx={{ maxWidth: 345 }}>
                 <CardMedia
                   sx={{ height: 140 }}
-                  image={nftData.image}
+                  image={data.image}
                   title="Web3Dev Blockchain"
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
-                    {nftData.name}
+                    {data.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {nftData.description}
+                    {data.description}
                   </Typography>
                   <Typography variant="h4" color="text.primary" align={'right'}>
-                    Bounty ${nftData.bounty}
+                    Bounty ${data.bounty}
                   </Typography>
                 </CardContent>
                 <CardActions>
                   <Button size="small">Share</Button>
-                  <Button size="small">Learn More</Button>
-                </CardActions>
+                  <Button size="small" onClick={() => handleButtonNftDetails(data.tokenId)}>Activity Details</Button>
+                </CardActions>  
               </Card>
             </Grid>
           ))}

@@ -6,10 +6,14 @@ import { Grid, Container } from '@mui/material';
 import ProfileCover from './ProfileCover';
 import RecentActivity from 'src/components/RecentActivity';
 import UserProfile  from 'src/components/User/UserProfile';
+import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
+import CompleteActivityNft from 'src/components/Nfts/CompleteActivityNft';
 
 function ManagementActivity() {
+  const { data, loading } = useErc721Contract();
   const user = UserProfile();
 
+  const activityOwner = '1' // TO DO Pegar TokenID do contrato e setar direto no useErc721Contract() como activityOwner
   return (
     <>
       <Helmet>
@@ -24,11 +28,11 @@ function ManagementActivity() {
           spacing={3}
         >
           <Grid item xs={12} md={12}>
-            <ProfileCover user={user} />
+            {/* <ProfileCover user={user} /> */}
           </Grid>          
 
           <Grid item xs={12} md={12}>
-            <RecentActivity/>
+            <CompleteActivityNft user={user} data={data} loading={loading} tokenId={activityOwner} />
           </Grid>
         </Grid>
       </Container>
