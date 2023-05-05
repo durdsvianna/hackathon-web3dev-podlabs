@@ -16,7 +16,7 @@ import { useState } from 'react';
 export default function UserEditPersonalDetails({ user: UserProfile }) {
 
     const [edit, setEdit] = useState(false);
-    const [description, setDescription] = useState(UserProfile.description); 
+    const [description, setDescription] = useState(UserProfile.description);
     const [editedUserProfile, setEditedUserProfile] = useState(UserProfile);
 
 
@@ -26,7 +26,7 @@ export default function UserEditPersonalDetails({ user: UserProfile }) {
             description: event.target.value
         });
         setDescription(event.target.value);
-        console.log('editado user profile description = ',editedUserProfile.description)
+        console.log('editado user profile description = ', editedUserProfile.description)
     };
 
     const handleChangeEdit = (event: any) => {
@@ -41,7 +41,7 @@ export default function UserEditPersonalDetails({ user: UserProfile }) {
         });
         setDescription(editedUserProfile.description);
 
-        console.log('Valor editado = ',editedUserProfile);
+        console.log('Valor editado = ', editedUserProfile);
         console.log('description,', editedUserProfile.description)
     };
 
@@ -102,7 +102,7 @@ export default function UserEditPersonalDetails({ user: UserProfile }) {
                         </>
                     ) : (
                         <Typography variant="subtitle2">
-                             {console.log('EdituserProfil no false nao', editedUserProfile)}
+                            {console.log('EdituserProfil no false nao', editedUserProfile)}
 
                             <UserProfileSection label="Nome" value={editedUserProfile.name} xs={12} sm={4} md={3} textAlign={{ sm: 'right' }} />
                             <UserProfileSection label="Description" value={editedUserProfile.description} xs={12} sm={4} md={3} textAlign={{ sm: 'right' }} />

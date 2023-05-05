@@ -1,49 +1,53 @@
-import {Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
-import { Key, ReactChild, ReactFragment, ReactPortal } from 'react';
+import { Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
 import SuspenseLoader from 'src/components/SuspenseLoader';
-import DetailsNft from 'src/content/applications/Activities/activity-details/detailsNft';
+import DetailsDescriptionNft from 'src/content/applications/Activities/activity-details/DetailsDescriptionNft';
 
-export default function ActivityDetailsNft({data, loading}) {
+export default function ActivityDetailsNft({ data, loading, nftId}) {
 
-    return (
-      <>
+  const tokenId = localStorage.getItem('tokenId');
+  console.log('tokenId = ', tokenId);
+
+  return (
+    <>
       {console.log('STATUS LOADING MEDIA NFT INITIAL = ', loading)}
+      {console.log('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = ', data)}
+
       {!loading
-      ?
-      <Box 
-        sx={{
-          marginTop: 4,
-        }}>
-        <Grid container spacing={2}>
-          {data.map((nftData: { bounty: number; image: string; name: boolean | ReactChild | ReactFragment | ReactPortal; description: boolean | ReactChild | ReactFragment | ReactPortal; }, index: Key) => (
-            <Grid item xs={12} key={index}>
-                <Card sx={{ maxWidth: 1035, height: 700 }}>
-                    <Grid spacing={0} container>
+        ?
+        <Box
+          sx={{
+            marginTop: 4,
+            width: 1,
+          }}>
+          <Grid container spacing={10}>
+              <Grid item xs={12} >
+                <Card sx={{ maxWidth: 1, height: 1}}>
+                  <Grid spacing={0} container>
 
-                        <Card sx={{ maxWidth: 1035 }}>
-                            <CardMedia
-                            sx={{ height: 420, width: 500 }}
-                            image={nftData.image}
-                            title="Web3Dev Blockchain"
-                            />
-                            <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                {nftData.name}
-                            </Typography>
-                            </CardContent>
-                        </Card>
-                        <DetailsNft data={data}/>
+                    <Card sx={{ maxWidth: 1035 }}>
+                    {data[nftId] && data[nftId].image && (
+                      <><CardMedia
+                        sx={{ height: 420, width: 500 }}
+                        image={data[nftId].image}
+                        title="Web3Dev Blockchain" /><CardContent>
+                          <Typography gutterBottom variant="h5" component="div">
+                            {data[nftId].name}
+                          </Typography>
+                        </CardContent></>
+                      )}
 
-                    </Grid>
+                    </Card>
+                    <DetailsDescriptionNft data={data} nftId={tokenId} />
+
+                  </Grid>
                 </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-      :
-      <SuspenseLoader />
+              </Grid>
+          </Grid>
+        </Box>
+        :
+        <SuspenseLoader />
       }
-      
-      </>
-    );
-  }
+
+    </>
+  );
+}

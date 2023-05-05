@@ -9,7 +9,9 @@ import RecentActivity from 'src/components/RecentActivity';
 import UserProfile  from 'src/components/User/UserProfile';
 import EditProfile from './EditProfile';
 import { ChangeEvent, useState } from 'react';
-
+import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
+import ActivityExpansiveDetailsNft from 'src/components/Nfts/ActivityExpansiveDetailsNft';
+import ActivityExpansiveDescriptionDetailsNft from 'src/components/Nfts/ActivityExpansiveDescriptionDetailsNft';
 const TabsWrapper = styled(Tabs)(
   () => `
     .MuiTabs-scrollableX {
@@ -21,6 +23,7 @@ const TabsWrapper = styled(Tabs)(
 function ManagementUserProfile() {
   const user = UserProfile();
   const [currentTab, setCurrentTab] = useState<string>('user-profile');
+  const { data, loading } = useErc721Contract();
 
   const tabs = [
     { value: 'user-profile', label: 'Profile' },
@@ -36,6 +39,8 @@ function ManagementUserProfile() {
       <Helmet>
         <title>Web3Dev User Profile</title>
       </Helmet>
+      <ActivityExpansiveDetailsNft data = {data} loading={loading}/>
+      <ActivityExpansiveDescriptionDetailsNft data = {data}/> 
       <Container sx={{ mt: 3 }} maxWidth="lg">
         <Grid
           container
@@ -64,7 +69,7 @@ function ManagementUserProfile() {
             {currentTab === 'user-profile-edit' && <EditProfile user={user}/>}
           </Grid>
           <Grid item xs={12} md={4}>
-            {currentTab === 'user-profile' && <RecentActivity />}
+            {currentTab === 'user-profile' && <RecentActivity data={data} />}
           </Grid>
 
         </Grid>
