@@ -7,8 +7,38 @@ import { useIpfsUploader } from "src/utils/IpfsUtils"
 import { useWalletAddress } from 'src/utils/Web3Utils';
 import { number } from 'prop-types';
 import { ethers, Signer } from 'ethers';
-
 const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
+
+export function useBurnActivity() {
+
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const [loading, setLoading] = useState(false);
+  const [ burn, setBurn ] = useState('');
+
+  async function Burning(tokenId: string): Promise<void> {
+    if (contract != null) {
+      try {          
+        const activityBurn = await contract.BurnNft(tokenId); 
+        setBurn(activityBurn);
+        console.log('Burning  = ', activityBurn);          
+      } catch (error) {
+        console.log("errors", error);
+        return;
+      } 
+    }
+  }
+
+  return { loading, setLoading, burn, Burning  }     
+}
 
 export function useContractApprovementActivity() {
   const contractReadConfig = {
@@ -313,7 +343,7 @@ export function useErc721Contract() {
     const [loading, setLoading] = useState(false);
     const [checkMember, setCheckMember] = useState(true);
     const [checkLeader, setCheckLeader] = useState(false);
-    // const [activityOwner, setActivityOwner] = useState('')
+    const [burn, setBurn] = useState(false)
 
     const contractReadConfig = {
       addressOrName: contractAddress.NftERC721,
@@ -327,25 +357,6 @@ export function useErc721Contract() {
     const contract = useContract(contractConfig);
     const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();
     const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
-
-    // function getActivityOwnerAddress(): void {
-
-    //   const { walletAddress } = useWalletAddress();
-    //   const wallet = walletAddress();
-
-    //   if (contract != null) {
-    //     try {
-    //       let activityOwnerAddress = contract.getActivityOwner(wallet);
-    //       console.log("activityOwner", activityOwnerAddress);
-    //       activityOwnerAddress.then((activity:string) => {
-    //           console.log("Activity Owner", activity);
-    //           setActivityOwner(activity);      
-    //         });
-    //     } catch (error) {
-    //       console.log('error', error);
-    //     }
-    //   }            
-    // }
 
     function balanceOf(to: string): void {
       if (contract != null) {

@@ -214,6 +214,10 @@ contract NftERC721 is ERC721, ERC721URIStorage, AccessControl, IERC721Receiver {
         return hasRole(LEADER_ROLE, account);
     }
 
+    function BurnNft(uint256 tokenId) public onlyRole(LEADER_ROLE){
+        return _burn(tokenId);
+    }
+
     // The following functions is an override required by Solidity.
     function _burn(uint256 tokenId)
         internal
