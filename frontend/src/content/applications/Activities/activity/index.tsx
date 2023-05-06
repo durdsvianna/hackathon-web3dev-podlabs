@@ -3,14 +3,30 @@ import Footer from 'src/components/Footer';
 
 import { Grid, Container } from '@mui/material';
 import UserProfile  from 'src/components/User/UserProfile';
-import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
+import { useContractLoadTokenId } from 'src/utils/Web3Erc721Utils';
 import CompleteActivityNft from 'src/components/Nfts/CompleteActivityNft';
+import { useParams } from 'react-router';
+import { useEffect } from 'react';
 
 function ManagementActivity() {
-  const { data, loading } = useErc721Contract();
+  const { data, loading, setLoading, loadNft } = useContractLoadTokenId();
   const user = UserProfile();
+  const { tokenId } = useParams(); // TO DO Pegar TokenID do contrato e setar direto no useErc721Contract() como activityOwner
+  
+  async function loadData() {
+    setLoading(true);
+    loadNft(tokenId);
+    setLoading(false);
+  }
 
-  const tokenId = '1' // TO DO Pegar TokenID do contrato e setar direto no useErc721Contract() como activityOwner
+  useEffect(() => {
+    if (!loading){
+      if (data == null)
+        loadData();
+    }
+   
+  })
+
   return (
     <>
       <Helmet>
@@ -26,7 +42,7 @@ function ManagementActivity() {
         >
 
           <Grid item xs={12} md={12}>
-            <CompleteActivityNft user={user} data={data} loading={loading} nftId={tokenId} />
+            <CompleteActivityNft user={user} data={data} loading={loading} tokenId={tokenId} />
           </Grid>
         </Grid>
       </Container>

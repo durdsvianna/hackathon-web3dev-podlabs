@@ -1,8 +1,16 @@
 import { Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Grid } from '@mui/material';
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import DetailsDescriptionNft from 'src/content/applications/Activities/activity-details/DetailsDescriptionNft';
+import { styled } from '@mui/material/styles';
 
-export default function ActivityDetailsNft({ data, loading, nftId}) {
+const CardActionsWrapper = styled(CardActions)(
+  ({ theme }) => `
+     background: ${theme.colors.alpha.black[5]};
+     padding: ${theme.spacing(3)};
+`
+);
+
+export default function ActivityDetailsNft({ data, loading, tokenId}) {
 
 
   return (
@@ -10,8 +18,7 @@ export default function ActivityDetailsNft({ data, loading, nftId}) {
       {console.log('STATUS LOADING MEDIA NFT INITIAL = ', loading)}
       {console.log('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = ', data)}
 
-      {!loading
-        ?
+     
         <Box
           sx={{
             marginTop: 4,
@@ -23,29 +30,41 @@ export default function ActivityDetailsNft({ data, loading, nftId}) {
                   <Grid spacing={0} container>
 
                     <Card sx={{ maxWidth: 1035 }}>
-                    {data[nftId] && data[nftId].image && (
+                    {data && data.image && (
                       <><CardMedia
                         sx={{ height: 420, width: 500 }}
-                        image={data[nftId].image}
+                        image={data.image}
                         title="Web3Dev Blockchain" /><CardContent>
                           <Typography gutterBottom variant="h5" component="div">
-                            {data[nftId].name}
+                            {data.name}
                           </Typography>
                         </CardContent></>
                       )}
 
                     </Card>
-                    <DetailsDescriptionNft data={data} loading={loading} nftId={nftId} />
+                    <DetailsDescriptionNft data={data} loading={loading} tokenId={tokenId} />
 
                   </Grid>
+                  <CardActionsWrapper
+                    sx={{
+                      display: { xs: 'block', md: 'flex' },
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >        
+                    <Box>              
+                    </Box>
+                    <Box sx={{ mt: { xs: 2, md: 0 } }}>
+                      <Button type="submit" variant="contained">
+                        Buy Activity
+                      </Button>
+                    </Box>
+                  </CardActionsWrapper>
                 </Card>
               </Grid>
           </Grid>
         </Box>
-        :
-        <SuspenseLoader />
-      }
-
+     
     </>
   );
 }

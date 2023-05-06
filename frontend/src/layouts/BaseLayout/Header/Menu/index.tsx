@@ -137,25 +137,7 @@ function HeaderMenu() {
                   <Typography color={'white'} sx={{ "&:hover": { color: "green" } }}>Manage</Typography>
                   }
                 />
-              </ListItem>
-              <ListItem
-                  classes={{ root: 'MuiListItem-indicators' }}
-                  button
-                  ref={ref}
-                  onClick={handleOpen}
-                >
-                <ListItemText
-                  primaryTypographyProps={{ noWrap: true }}
-                  primary={
-                    <Box display="flex" alignItems="center">
-                      <Typography color={'white'} sx={{ "&:hover": { color: "green" } }}>Dev</Typography>
-                      <Box display="flex" alignItems="center" pl={0.3}>
-                        <ExpandMoreTwoToneIcon fontSize="small" sx={{ "&:hover": { color: "green" } }} />
-                      </Box>
-                    </Box>
-                  }
-                />
-              </ListItem>
+              </ListItem>              
             </>
             )
             :
@@ -163,20 +145,6 @@ function HeaderMenu() {
           }
         </List>
       </ListWrapper>
-      <Menu anchorEl={ref.current} onClose={handleClose} open={isOpen}>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activities">
-          Activities
-        </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activity">
-          Activity
-        </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/dapp/activity-settings">
-          Activity Settings
-        </MenuItem>
-        <MenuItem sx={{ px: 3 }} component={NavLink} to="/components">
-          Template
-        </MenuItem>
-      </Menu>
     </>
   );
 }
