@@ -157,7 +157,16 @@ npx hardhat test
 
 ```
 Dificuldades:
+
+Dificuldade maior foi em conseguir utilizar a biblioteca wagmi para realizar as interações com o contrato. 
+O multi-sig acabou que não conseguimos nos dedicar o tanto quanto queríamos, pois ficamos muito tempo com problemas relativamente básicos de load de páginas com o React Hooks.
 Visão de futuro:
+
+Visão de Futuro:
+
+Ajustar o loas da pagina principal com os cards do marketplace.
+Acredito que após essa experiencia, para o futuro nos cabe finalizar o desenvolvimento do multi-sig e então validar o processo de aprovação da conclusão das atividades pelos lideres. 
+Implementar a transação de compra da atividade pelo membro.
 
 ```
 ## Licença
