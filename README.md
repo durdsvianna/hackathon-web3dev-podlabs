@@ -62,6 +62,7 @@ Para testar/compilar é necessário ter o Node Js instalado na máquina.
 Pré-requisito Instalação:
 
 - Node Js
+- IPFS Desktop
 
 ### Variáveis de ambiente
 
@@ -81,14 +82,15 @@ REACT_APP_ERC721_METADATA_EXTERNAL_LINK="'https://github.com/seu-profile"
 REACT_APP_DAPP_CONTRACT="0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
 ```
 
-## Testes Locais no Hardhat
+## Interagindo com o Marketplace
+
 
 - Pré-requisitos
     - Metamask configurada com nó Local Hardhat
     ```
     Network Name: Hardhat
     New RPC URL: http://127.0.0.1:8545/ — O ponto de acesso retornado ao rodar o nó local do hardhat
-    Chain ID: 31337 —  ID Padrão do Hardhat, veja mais (aqui)[https://hardhat.org/hardhat-network/docs/reference]
+    Chain ID: 31337 —  ID Padrão do Hardhat, veja mais [https://hardhat.org/hardhat-network/docs/reference]
     Currency Symbol: HardhatETH — Defina um simbolo que irá aparecer no seu LocalHost do Hardhat
     ```
 1. Entre na pasta frontend
@@ -131,13 +133,33 @@ REACT_APP_DAPP_CONTRACT = <Coloque o endereço do Contrato aqui>
   npx hardhat --network localhost faucet <Coloque seu endereço aqui>  
 ```
 
-8. Interaja com o contrato criando uma atividade através do Frontend
+8. Interaja com o contrato criando uma atividade através do Frontend e queimando e alterando a ROLE nos scripts
 
+## Importante !
+```
+Para a aplicação funcionar é necessário alterar a ROLE em deployment/deployNftERC721.js com o seu endereço, recomendável ter duas contas para experiência de ser LEADER e MEMBER na comunidade Web3Dev
+Exemplo:    
+await erc721.grantRole(LEADER_ROLE, "<Coloque seu Endereço aqui>")
+
+Agora envie o Faucet para esse endereço, Lembrando que apenas o LEADER consegue realizar o MINT e o BURN do NFT.
+
+O IPFS Desktop é importante para renderizar suas NFTs na aplicação
+
+```
 ---
 
+## Testes Locais no Hardhat
+Rode esse comando em contracts/ 
+``` 
+npx hardhat test
+```
+
+
+```
 Dificuldades:
 Visão de futuro:
 
+```
 ## Licença
 
 Distributed under the MIT License. See `LICENSE` for more information.
@@ -147,7 +169,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <table>
   <tr>
     <td align="center">
-      <a href="https://www.linkedin.com/in/">
+      <a href="https://www.linkedin.com/in/daniel-vianna-431a0932/">
         <img src="https://avatars.githubusercontent.com/u/19876786?v=4" width="100px;" alt="Daniel Vianna"/><br>
         <sub>
           <b>Daniel Vianna</b>
