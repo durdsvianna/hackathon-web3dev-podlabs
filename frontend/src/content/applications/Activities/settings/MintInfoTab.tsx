@@ -4,9 +4,11 @@ import * as yup from "yup";
 import DoneTwoToneIcon from '@mui/icons-material/DoneTwoTone';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { useBurnActivity, useContractApprovementActivity, useErc721Contract } from "src/utils/Web3Erc721Utils"
-import { useContractRead, useContract, useAccount, useEnsName, useSigner } from 'wagmi';
-import TokenArtifact from "src/contracts/Token.json";
-import contractAddress from "src/contracts/contract-address.json";
+import AlertInformation from 'src/components/Modal/AlertInformation'
+
+//Alert Information Params
+const textAlert = 'Burning NFT'
+const textAlertError = 'Error Burning NFT'
 
 const ButtonError = styled(Button)(
   ({ theme }) => `
