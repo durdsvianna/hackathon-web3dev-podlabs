@@ -4,13 +4,29 @@ import { Helmet } from 'react-helmet-async';
 import { Grid, Container, Card } from '@mui/material';
 
 import ActivityDetailsNft from 'src/components/Nfts/ActivityDetailsNft';
-import { useErc721Contract } from 'src/utils/Web3Erc721Utils';
+import { useContractLoadTokenId } from 'src/utils/Web3Erc721Utils';
+import { useParams } from 'react-router';
+import { useEffect } from 'react';
 
 function ActivityDetails() {
-  const { data, loading } = useErc721Contract();
-  const tokenId = localStorage.getItem('tokenId');
+  const { data, loading, setLoading, loadNft } = useContractLoadTokenId();
+  const {tokenId} = useParams();
   console.log('tokenId = ', tokenId);
 
+  async function loadData() {
+    setLoading(true);
+    loadNft(tokenId);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    if (!loading){
+      if (data == null)
+        loadData();
+    }
+   
+  })
+  
   return (
     <>
       <Helmet>
@@ -26,7 +42,7 @@ function ActivityDetails() {
         >
 
               <Grid item xs={12} md={12} >
-                <ActivityDetailsNft data={data} loading={loading} nftId={tokenId}/>
+                <ActivityDetailsNft data={data} loading={loading} tokenId={tokenId}/>
               </Grid>    
               
         </Grid>

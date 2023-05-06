@@ -8,6 +8,7 @@ import { useWalletAddress } from 'src/utils/Web3Utils';
 import { number } from 'prop-types';
 import { ethers, Signer } from 'ethers';
 
+const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
 
 export function useContractApprovementActivity() {
   const contractReadConfig = {
@@ -114,7 +115,6 @@ export function useContractLoadTokenId(){
   };
   const contract = useContract(contractConfig);
   const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();
-  const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
   const [loading, setLoading] = useState(false);
   const [ data, setData ] = useState<NftOrder>(null);
 
@@ -161,6 +161,148 @@ export function useContractLoadTokenId(){
   }
 
   return { data, loading, setLoading, loadNft}
+}
+
+export function useContractLoadLastNft() {
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const [loadingLastToken, setLoadingLastToken] = useState(false);
+  const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();    
+  
+  const [lastToken, setLastToken] = useState<NftOrder>(null);
+
+  async function loadLastNft() : Promise<void>{
+    if (contract != null) {
+      try {
+        const nftQuantity = await contract.idCounter();  
+        const uri = await contract.tokenURI(nftQuantity.toNumber()-1);
+        const nftOwner = await contract.ownerOf(nftQuantity.toNumber()-1); 
+        console.log("nftOwner", nftOwner);
+        const metadblata = downloadJsonFromPinata(ipfsGateway+uri).then(result => {
+          console.log("result", result);        
+          const activityJson = JSON.parse(result);
+          let rewards:string 
+          let creator:string
+          activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
+            if (attr.trait_type == 'Rewards')
+              rewards = attr.value;
+            if (attr.trait_type == 'Creator')
+              creator = attr.value;
+          })            
+          const nftOrder: NftOrder = 
+            {
+              owner: nftOwner,
+              tokenId: nftQuantity.toNumber()-1,
+              name: activityJson.name,
+              description: activityJson.description,
+              image: ipfsGateway + activityJson.image,
+              status: 'Concluido',
+              attributes: 'Comunidade',
+              creatorActivity: creator,
+              tag: 'tag#3',
+              dateLimit: 'Dezembro',
+              bounty: Number(rewards),
+              difficulty: 'Avancado',
+            };         
+          setLastToken(nftOrder);  
+        });        
+      } catch (error) {
+        console.log("error", error);
+        return;
+      }
+    }
+  }
+
+  
+  return { loadingLastToken, 
+    setLoadingLastToken, 
+    lastToken, 
+    loadLastNft }
+}
+
+export function useContractLoadNfts() {
+  const contractReadConfig = {
+    addressOrName: contractAddress.NftERC721,
+    contractInterface: NftERC721Artifact.abi,
+  }
+  const { data: signer } = useSigner();
+  const contractConfig = {
+    ...contractReadConfig,
+    signerOrProvider: signer,
+  };
+  const contract = useContract(contractConfig);
+  const [loading, setLoading] = useState(false);
+  const [ data, setData ] = useState<NftOrder[]>([]);
+  const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();    
+  
+  async function loadNfts () : Promise<void> {  
+    if (contract != null) {
+      try {          
+        const nftQuantity = await contract.idCounter();  
+        let lastsUriMints: [{tokenId: number; tokenUri: string, owner: string }] = [{tokenId: -1, tokenUri: '', owner: ''}];
+        let max = nftQuantity.toNumber();
+        for(let i = max ; i > 0; i--) {             
+          const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
+          const nftOwner = await contract.ownerOf(nftQuantity.toNumber()-1); 
+          lastsUriMints.push({
+            tokenId: nftQuantity.toNumber()-i, 
+            tokenUri: uri,
+            owner:nftOwner
+          })            
+        }        
+        let nfts: NftOrder[] = [];
+        lastsUriMints.slice().reverse().forEach(async token => {          
+          if (token.tokenId >= 0) {
+            const activityJson = JSON.parse(await downloadJsonFromPinata(ipfsGateway+token.tokenUri).then(result => result));            
+            let rewards:string 
+            let creator:string
+            activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
+              if (attr.trait_type == 'Rewards')
+                rewards = attr.value;
+              if (attr.trait_type == 'Creator')
+                creator = attr.value;
+            })
+            const nftOrder: NftOrder = 
+              {
+                owner: token.owner,
+                tokenId: token.tokenId,
+                name: activityJson.name,
+                description: activityJson.description,
+                image: ipfsGateway+activityJson.image,
+                status: 'Concluido',
+                attributes: 'Comunidade',
+                creatorActivity: creator,
+                tag: 'tag#3',
+                dateLimit: 'Dezembro',
+                bounty: parseInt(rewards),
+                difficulty: 'Avancado',
+              };
+            nfts.push(nftOrder)   
+            
+          }            
+        }); 
+        console.log(nfts);          
+        setData(nfts);
+      } catch (error) {
+        console.log("error", error)
+        return;
+      }                       
+    }
+  }
+
+  return { loading, 
+           setLoading, 
+           data, 
+           loadNfts
+         }
 }
 
 export function useErc721Contract() {
@@ -220,125 +362,9 @@ export function useErc721Contract() {
       }            
     }
 
-    async function loadLastNft() {
-      setLoading(true);
-      if (contract != null) {
-        try {
-          const nftQuantity = await contract.idCounter();  
-          const uri = await contract.tokenURI(nftQuantity.toNumber()-1);
-          const nftOwner = await contract.ownerOf(nftQuantity.toNumber()-1); 
-          console.log("nftOwner", nftOwner);
-          setCounter(nftQuantity.toNumber());
-          const metadata = downloadJsonFromPinata(ipfsGateway+uri).then(result => {
-            console.log("result", result);        
-            const activityJson = JSON.parse(result);
-            let rewards:string 
-            let creator:string
-            console.log("ACTIVITY JSON = ",activityJson)
-            activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
-              if (attr.trait_type == 'Rewards')
-                rewards = attr.value;
-              if (attr.trait_type == 'Creator')
-                creator = attr.value;
-            })            
-            const nftOrder: NftOrder = 
-              {
-                owner: nftOwner,
-                tokenId: nftQuantity.toNumber()-1,
-                name: activityJson.name,
-                description: activityJson.description,
-                image: ipfsGateway + activityJson.image,
-                status: 'Concluido',
-                attributes: 'Comunidade',
-                creatorActivity: creator,
-                tag: 'tag#3',
-                dateLimit: 'Dezembro',
-                bounty: Number(rewards),
-                difficulty: 'Avancado',
-              };         
-            setLastToken(nftOrder); 
-            console.log("nftOrder", nftOrder);    
-            // setLoading(false);    
-          });        
-        } catch (error) {
-          console.log("error", error);
-          setLoading(false)
-        }
-      }
-    }
-
-    async function loadNfts () {  
-      setLoading(true);    
-      if (contract != null) {
-        try {          
-          const nftQuantity = await contract.idCounter();  
-          let lastsUriMints: [{tokenId: number; tokenUri: string, owner: string }] = [{tokenId: -1, tokenUri: '', owner: ''}];
-          let max = nftQuantity.toNumber();
-          for(let i = max ; i > 0; i--) {             
-            const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
-            const nftOwner = await contract.ownerOf(nftQuantity.toNumber()-1); 
-            console.log("nftOwner", nftOwner);
-            lastsUriMints.push({
-              tokenId: nftQuantity.toNumber()-i, 
-              tokenUri: uri,
-              owner:nftOwner
-            })            
-          }
-          
-          let nfts: NftOrder[] = [];
-          lastsUriMints.slice().reverse().forEach(token => {
-            
-            console.log("token", token);
-            if (token.tokenId >= 0) {
-              const metadata = downloadJsonFromPinata(ipfsGateway+token.tokenUri).then(result => {
-                //console.log("result", result);        
-                const activityJson = JSON.parse(result);
-                let rewards:string 
-                let creator:string
-                activityJson.attributes.forEach((attr: { trait_type: string; value: string; }) => {
-                  if (attr.trait_type == 'Rewards')
-                    rewards = attr.value;
-                  if (attr.trait_type == 'Creator')
-                    creator = attr.value;
-                })
-                const nftOwnerPromise = contract.ownerOf(nftQuantity.toNumber()-1); 
-                const nftOwner = nftOwnerPromise.then(result => {return result.result});
-                console.log("nftOwner", nftOwner);
-                const nftOrder: NftOrder = 
-                  {
-                    owner: token.owner,
-                    tokenId: token.tokenId,
-                    name: activityJson.name,
-                    description: activityJson.description,
-                    image: ipfsGateway+activityJson.image,
-                    status: 'Concluido',
-                    attributes: 'Comunidade',
-                    creatorActivity: creator,
-                    tag: 'tag#3',
-                    dateLimit: 'Dezembro',
-                    bounty: parseInt(rewards),
-                    difficulty: 'Avancado',
-                  };
-                nfts.push(nftOrder)
-                console.log("nftOrder", nftOrder);
-                if (token.tokenId == 0)
-                  setLoading(false);         
-              });                                          
-            }            
-          });  
-          setData(nfts)
-          console.log("nfts",nfts);
-        } catch (error) {
-          console.log("error", error)
-          setLoading(false);
-          return;
-        }                       
-      }
-    }
-
+    
+    
     useEffect(() => {      
-        loadNfts();
-        loadLastNft();
         balanceOf(process.env.REACT_APP_DAPP_CONTRACT);
         // getActivityOwnerAddress()
     }, []);

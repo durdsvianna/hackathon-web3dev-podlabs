@@ -12,16 +12,15 @@ import {
   Grid,
 } from '@mui/material';
 
-function DetailsDescriptionNft({ data, loading, nftId }) {
+function DetailsDescriptionNft({ data, loading, tokenId }) {
   const theme = useTheme();
 
   return (
     <>
-    {!loading ? 
       <Grid item xs={12} sm={6} md={6} lg={6}>
-      {data[nftId] && (
+      {data && (
           <Card sx={{ ml: 4 }}>
-            <CardHeader title={data[nftId].name} />
+            <CardHeader title={data.name} />
             <Divider />
             <Box px={2} py={4} display="flex" alignItems="flex-start">
               <Box pl={2} flex={1}>
@@ -37,7 +36,7 @@ function DetailsDescriptionNft({ data, loading, nftId }) {
                       Details
                     </Typography>
 
-                    <Typography variant="h2">{data[nftId].description}</Typography>
+                    <Typography variant="h2">{data.description}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -56,7 +55,7 @@ function DetailsDescriptionNft({ data, loading, nftId }) {
                     >
                       Total
                     </Typography>
-                    <Typography variant="h2">${data[nftId].bounty}</Typography>
+                    <Typography variant="h2">${data.bounty}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -66,8 +65,7 @@ function DetailsDescriptionNft({ data, loading, nftId }) {
           </Card>
         )}
       </Grid>
-  : <div>Error Loading</div>  
-  }
+
     </>
   );
 }

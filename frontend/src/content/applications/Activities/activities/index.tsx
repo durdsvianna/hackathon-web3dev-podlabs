@@ -8,18 +8,34 @@ import AccountBalance from './AccountBalance';
 import Activities from './Activities';
 import LastActivities from './LastActivities';
 
-import { useErc721Contract } from "src/utils/Web3Erc721Utils"
+import { useContractLoadLastNft, useContractLoadNfts, useErc721Contract } from "src/utils/Web3Erc721Utils"
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import { useEffect } from 'react';
 
 function ApplicationsActivities() {
-  const { data, loading, lastToken, balance, setLoading } = useErc721Contract();
+  const { loading, setLoading, data, loadNfts } = useContractLoadNfts();
+  const { loadingLastToken, setLoadingLastToken, lastToken, loadLastNft } = useContractLoadLastNft();
+  const { balance } = useErc721Contract();
+
+  async function loadData() {
+    setLoading(true);
+    setLoadingLastToken(true)
+    loadNfts().then(result => {
+      loadLastNft().then(result => {        
+      });     
+    });    
+    setLoading(false);    
+    setLoadingLastToken(false)
+  }
 
   useEffect(() => {
-    return () => {
-      setLoading(false);
+    if (!loading || !loadingLastToken){
+      if (data.length <= 0 )
+        if(lastToken == null) 
+          loadData();  
     }
-  },[])
+    })
+
   return (
     <>
       <Helmet>

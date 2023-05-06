@@ -9,9 +9,7 @@ export default function ActivityExpansiveDetailsNft({ data, loading }) {
     <>
       {console.log('STATUS LOADING MEDIA NFT INITIAL = ', loading)}
       {console.log('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = ', data)}
-      {!loading
-        ?
-        <Box
+      <Box
           sx={{
             marginTop: 4,
             width: 1,
@@ -42,10 +40,6 @@ export default function ActivityExpansiveDetailsNft({ data, loading }) {
             ))}
           </Grid>
         </Box>
-        :
-        <SuspenseLoader />
-      }
-
     </>
   );
 }
