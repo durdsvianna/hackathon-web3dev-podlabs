@@ -9,6 +9,13 @@ import { number } from 'prop-types';
 import { ethers, Signer } from 'ethers';
 const ipfsGateway = process.env.REACT_APP_IPFS_GATEWAY;
 
+const provider = new ethers.providers.Web3Provider(window.ethereum);  
+const contract = new ethers.Contract(
+  contractAddress.NftERC721,
+  NftERC721Artifact.abi,
+  provider.getSigner()
+);
+
 export function useBurnActivity() {
 
   const contractReadConfig = {
@@ -259,26 +266,19 @@ export function useContractLoadLastNft() {
 }
 
 export function useContractLoadNfts() {
-  const contractReadConfig = {
-    addressOrName: contractAddress.NftERC721,
-    contractInterface: NftERC721Artifact.abi,
-  }
-  const { data: signer } = useSigner();
-  const contractConfig = {
-    ...contractReadConfig,
-    signerOrProvider: signer,
-  };
-  const contract = useContract(contractConfig);
-  const [loading, setLoading] = useState(false);
-  const [ data, setData ] = useState<NftOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(0);
   const { downloadJsonFromPinata, downloadListFromPinata } = useIpfsUploader();    
   
-  async function loadNfts () : Promise<void> {  
+  async function loadNfts () : Promise<NftOrder[]> {  
     if (contract != null) {
       try {          
         const nftQuantity = await contract.idCounter();  
         let lastsUriMints: [{tokenId: number; tokenUri: string, owner: string }] = [{tokenId: -1, tokenUri: '', owner: ''}];
         let max = nftQuantity.toNumber();
+
+        setQuantity(max);
+        console.log("quantity", quantity)
         for(let i = max ; i > 0; i--) {             
           const uri = await contract.tokenURI(nftQuantity.toNumber()-i);
           const nftOwner = await contract.ownerOf(nftQuantity.toNumber()-1); 
@@ -288,6 +288,7 @@ export function useContractLoadNfts() {
             owner:nftOwner
           })            
         }        
+        console.log("lastsUriMints", lastsUriMints)
         let nfts: NftOrder[] = [];
         lastsUriMints.slice().reverse().forEach(async token => {          
           if (token.tokenId >= 0) {
@@ -315,12 +316,10 @@ export function useContractLoadNfts() {
                 bounty: parseInt(rewards),
                 difficulty: 'Avancado',
               };
-            nfts.push(nftOrder)   
-            
+            nfts.push(nftOrder)               
           }            
         }); 
-        console.log(nfts);          
-        setData(nfts);
+        return nfts;
       } catch (error) {
         console.log("error", error)
         return;
@@ -330,8 +329,8 @@ export function useContractLoadNfts() {
 
   return { loading, 
            setLoading, 
-           data, 
-           loadNfts
+           loadNfts,
+           quantity
          }
 }
 

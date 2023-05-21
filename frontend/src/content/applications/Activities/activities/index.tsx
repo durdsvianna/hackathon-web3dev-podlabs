@@ -7,34 +7,36 @@ import Footer from 'src/components/Footer';
 import AccountBalance from './AccountBalance';
 import Activities from './Activities';
 import LastActivities from './LastActivities';
-
+import { NftOrder } from 'src/models/nft_order';
 import { useContractLoadLastNft, useContractLoadNfts, useErc721Contract } from "src/utils/Web3Erc721Utils"
 import SuspenseLoader from 'src/components/SuspenseLoader';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function ApplicationsActivities() {
-  const { loading, setLoading, data, loadNfts } = useContractLoadNfts();
+  const { loading, setLoading, loadNfts } = useContractLoadNfts();
+  const [ data, setData ] = useState<NftOrder[]>(null);
   const { loadingLastToken, setLoadingLastToken, lastToken, loadLastNft } = useContractLoadLastNft();
   const { balance } = useErc721Contract();
 
-  async function loadData() {
-    setLoading(true);
-    setLoadingLastToken(true)
-    loadNfts().then(result => {
-      loadLastNft().then(result => {        
-      });     
-    });    
-    setLoading(false);    
-    setLoadingLastToken(false)
-  }
-
   useEffect(() => {
-    if (!loading || !loadingLastToken){
-      if (data.length <= 0 )
-        if(lastToken == null) 
-          loadData();  
-    }
-    })
+    setLoadingLastToken(true)      
+      loadLastNft().then(result => {                  
+        setLoadingLastToken(false)      
+      });
+      
+      //loadData();                 
+      setLoading(true);  
+      loadNfts().then(result => {
+        console.log("result", result)
+        setTimeout(()=>{
+          setData(result);
+          setLoading(false);  
+          console.log("data", data)
+        },2000)        
+        
+      })    
+        
+  },[])
 
   return (
     <>
