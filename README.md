@@ -34,7 +34,7 @@ Nome do projeto:  Web3Dev Admin Activities Dashboard
 Pitch:
 ```
 ## Arquitetura do sistema
-![Arquitetura Do Sistema](https://ipfs.io/ipfs/QmUYos9SV1mYio2yffp4t3JUdbn77L66mwijAKyH41VQbj?filename=NFT%20Web3Dev.png)
+![Arquitetura Do Sistema](./frontend/public/NFTWeb3Dev.png)
 
 ## Tecnologias
 
