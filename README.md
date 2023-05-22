@@ -74,7 +74,7 @@ Pré-requisito Instalação:
   REACT_APP_PINATA_AUTH = 'Bearer <SENHA>'
   REACT_APP_PINATA_API_SECRET = '<SENHA>'
   REACT_APP_PINATA_API_KEY = '<SENHA>'
-  REACT_APP_IPFS_GATEWAY='http://127.0.0.1:8080/ipfs/'
+  REACT_APP_IPFS_GATEWAY='https://gateway.pinata.cloud/ipfs/'
   REACT_APP_ERC721_METADATA_EXTERNAL_LINK = 'https://github.com/seu-nome/'
   REACT_APP_DAPP_CONTRACT = "<Endereço do Contrato Deployado>"
 ```
@@ -154,7 +154,7 @@ Pré-requisito Instalação:
       - Adicione no arquivo .env
           ``` 
           No arquivo .env
-          - REACT_APP_IPFS_GATEWAY='http://127.0.0.1:8080/ipfs/'
+          - REACT_APP_IPFS_GATEWAY='https://gateway.pinata.cloud/ipfs/'
 
           ```
 
@@ -355,7 +355,7 @@ Pré-requisito Instalação:
   ## 5.3 Envie faucet para seu endereço:
 
   ```
-    npx hardhat --network localhost faucet <Coloque o endereço da sua Wallet Aqui >  
+    npx hardhat faucet <Coloque o endereço da sua Wallet Aqui >
   ```
 
 ## Importante !
@@ -366,7 +366,15 @@ await erc721.grantRole(LEADER_ROLE, "<Coloque seu Endereço aqui>")
 
 Agora envie o Faucet para esse endereço, Lembrando que apenas o LEADER consegue realizar o MINT e o BURN do NFT.
 
-O IPFS Gateway é importante para renderizar suas NFTs na aplicação,caso você utilize outro Gateway como o IPFS DESKTOP, deve-se alterar no .env em IPFS Gateway com suas respectivas variáveis de ambiente.
+O IPFS Gateway é importante para renderizar suas NFTs na aplicação,caso você utilize outro Gateway como o IPFS DESKTOP, deve-se alterar no .env em IPFS Gateway com suas respectivas variáveis de ambiente. 
+Caso o NFT não esteja renderizando, teste outros gateways, exemplos:
+
+REACT_APP_IPFS_GATEWAY='https://cloudflare-ipfs.com/ipfs/'
+REACT_APP_IPFS_GATEWAY='https://gateway.ipfs.io/ipfs/'
+REACT_APP_IPFS_GATEWAY='https://gateway.pinata.cloud/ipfs/'
+
+Com DESKTOP IPFS 
+REACT_APP_IPFS_GATEWAY='http://127.0.0.1:8080/ipfs/'
 
 ```
 - Caso o nó do Hardhat esteja com muitos blocos e esteja com erro no mint dos NFTs, sugestão:
