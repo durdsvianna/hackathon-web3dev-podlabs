@@ -342,7 +342,7 @@ Pré-requisito Instalação:
   ```
   - Após executar o comando de deploy, anote o endereço do contrato deployado NFT (ERC-721) contract address:  
   
-  ![Adicionar ](./frontend/public/step1REACT_APP_dAPP_CONTRACT.png)
+  ![Adicionar ](./frontend/public/step1React_APP_DAPP_CONTRACT.png)
 
   ## 5.2. Configure o .env (REACT_APP_DAPP_CONTRACT)
 
